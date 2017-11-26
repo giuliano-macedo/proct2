@@ -1,30 +1,40 @@
 #include<stdio.h>
-#include "png++/png.hpp"
+#include "lode/lode.h"
 
-#define ICFOURIER_SHA 1
-#define ICFRACTDIM_SHA 2
+enum IcParamCode{
+	ICFOURIER_SHA,
+	ICFRACTDIM_SHA,
 
-#define ICFOURIER_TEX 3
-#define ICFRACTDIM_TEX 4
-
-#define IC_MAX_ARG_CODE=4
+	ICFOURIER_TEX,
+	ICFRACTDIM_TEX,
+	ICLBP_TEX,
+	
+	iC_NO_ARGTYPES
+};
 
 struct dataSetItem{
-	void* data;
+	double* data;
 	uint label;
-}
+};
+struct Image{
+	unsigned char* data;
+	uint w;
+	uint h;
+};
 typedef struct dataSetItem DSItem;
+typedef struct Image Image;
 typedef unsigned int uint;
 class ImageLoader{
 	public:
-		ImageLoader(uint* params);
-		void addImage(char* path);
-		void addParam(uint param);
+		ImageLoader();
+		void addImage(const char* filename);
+		void addParam(IcParamCode param);
 		DSItem* getDS();
 
 	private:
-		DSItem* ds;
-		uint* params;
+		void (* preProcFs[iC_NO_ARGTYPES])(Image* img);
 		uint noParams;
+		static Image getImage(const char* filename);
+		DSItem* ds;
 
 }

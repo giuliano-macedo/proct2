@@ -15,29 +15,40 @@ ImageLoader::ilError(uint code){
 ImageLoader::ImageLoader(){
 	//TODO
 }
+static Image ImageLoader::getImage(const char* filename){
+	Image ans;  
+
+	uint error = lodepng_decode_file(&ans.data, &ans.w, &ans.h, filename,LCT_GREY,8);
+	if(error){	
+		fprintf(stderr,"ERRO LODE  %u: %s\n", error, lodepng_error_text(error));
+		fprintf(stderr, "Pulando arquivo:%s\n",filename );
+		ans.data=NULL;
+	}
+
+  return ans;
+}
 void ImageLoader::addParam(uint p){
 	if(p>IC_MAX_ARG_CODE)ilError(3);
 	params[noParams]=p;
 	noParams++;
 }
-void ImageLoader::addImage(char* path{
-	png::image< png::gray_pixel> im(path); //TODO CHECK IF ITS ONLY THIS TO DO WHEN OPENING IMAGE
-	uint w=im.get_width();
-	uint h=im.get_height();
+void ImageLoader::addImage(const char* filename{
+	Image im=getImage(filename);
+	if(im.data==NULL)return;
 
 	for(uint i=0;i<noParams;i++){
 		switch(params[i]){
-			case ICFOURIER_TEX:
-				fourier_tex(im,w,h);
+			case ICFOURIER_SHAPE:
+				fourier_shapex(&im);
 				break;
 			case ICFRACTDIM_SHAPE:
-				fractdim_shape(im,w,h);
+				fractdim_shape(&im);
 				break;
 			case ICFOURIER_TEX:
-				fourier_tex(im,w,h);
+				fourier_tex(&im);
 				break;
 			case ICFRACTDIM_TEX:
-				fractdim_tex(im,w,h);
+				fractdim_tex(&im);
 				break;
 		}
 	}
