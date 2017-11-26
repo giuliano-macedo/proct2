@@ -1,19 +1,24 @@
 #include<stdio.h>
 #include "lode/lode.h"
-
+#include<math.h>
+enum ThreshCode{
+	ICSIMPLE_THR,
+	ICKMEAN_THR
+}
 enum IcParamCode{
 	ICFOURIER_SHA,
 	ICFRACTDIM_SHA,
+	ICHUMOMENTS_SHA,
 
 	ICFOURIER_TEX,
 	ICFRACTDIM_TEX,
 	ICLBP_TEX,
-	
+
 	iC_NO_ARGTYPES
 };
 
 struct dataSetItem{
-	double* data;
+	std::vector<double> data;
 	uint label;
 };
 struct Image{
@@ -28,13 +33,33 @@ class ImageLoader{
 	public:
 		ImageLoader();
 		void addImage(const char* filename);
-		void addParam(IcParamCode param);
+		void setThresh(ThreshCode p,int* args);
+		void addParam(IcParamCode p);
 		DSItem* getDS();
 
 	private:
-		void (* preProcFs[iC_NO_ARGTYPES])(Image* img);
+		bool isShapeSet;
+		bool isThreshSet;
+
+		ThreshCode tparam;
+		int* targs;
+
+		IcParamCode* params;
 		uint noParams;
 		static Image getImage(const char* filename);
-		DSItem* ds;
+		std::vector<DSItem> ds;
+		std::vector<double> currentData;
+		uint dsIndex;
+
+		Image simple_threshold(Image* i);
+		Image kmean_threshold(Image* i);
+
+		void fourier_shape(Image* i);
+		void fractdim_shape(Image* i);
+		void humoments_shape(Image* image);
+		
+		void fourier_texture(Image* i);
+		void fractdim_texture(Image* i);
+		void lbp_texture(Image* i);
 
 }
