@@ -50,7 +50,7 @@ void ImageLoader::addImage(const char* filename{
 	ds->push_back(NULL);//Not sure
 	currentData=ds[dsIndex].data;
 	if(isShapeSet&&!isThreshSet)ilError(2);
-	Image im,tim;
+	Image im,tim,eim;
 	im=getImage(filename);
 	if(im.data==NULL)return;
 	if(isThreshSet){
@@ -62,6 +62,7 @@ void ImageLoader::addImage(const char* filename{
 				tim=kmean_threshold(&im);
 				break;
 		}
+		eim=binEdgeDetect(&tim);
 	}
 
 	for(uint i=0;i<noParams;i++){

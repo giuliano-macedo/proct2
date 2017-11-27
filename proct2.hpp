@@ -53,6 +53,7 @@ class ImageLoader{
 
 		Image simple_threshold(Image* i);
 		Image kmean_threshold(Image* i);
+		Image binEdgeDetect(Image* i);
 
 		void fourier_shape(Image* i);
 		void fractdim_shape(Image* i);
