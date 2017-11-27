@@ -28,7 +28,7 @@ double mu(Image* i,double a,double xmean,double ymean,double p,double q){
 	double gamma=((p+q)/2)+1
 	return ans/pow(a,gamma);
 }
-ImageLoader::humoment_shape(Image* i){
+void ImageLoader::humoment_shape(Image* i){
 	//TODO REVIEW FORMULA
 	double a=regularMomentOrder(i,1,1);
 	double xm=regularMomentOrder(i,1,0)/a;
