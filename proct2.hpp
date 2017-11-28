@@ -5,7 +5,7 @@
 enum ThreshCode{
 	ICSIMPLE_THR,
 	ICKMEAN_THR
-}
+};
 enum IcParamCode{
 	ICFOURIER_SHA,
 	ICFRACTDIM_SHA,

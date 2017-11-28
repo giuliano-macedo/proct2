@@ -1,4 +1,3 @@
-
 static Image ImageLoader::getImage(const char* filename){
 	Image ans;
 
