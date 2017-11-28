@@ -47,6 +47,7 @@ class ImageLoader{
 		IcParamCode* params;
 		uint noParams;
 		static Image getImage(const char* filename);
+		static Image newImageFrom(Image* i);
 		std::vector<DSItem> ds;
 		std::vector<double> currentData;
 		uint dsIndex;
@@ -58,7 +59,7 @@ class ImageLoader{
 		void fourier_shape(Image* i);
 		void fractdim_shape(Image* i);
 		void humoments_shape(Image* image);
-		
+
 		void fourier_texture(Image* i);
 		void fractdim_texture(Image* i);
 		void lbp_texture(Image* i);
