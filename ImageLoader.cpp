@@ -2,6 +2,8 @@
 ImageLoader::ilError(uint code){
 	switch(code){
 		case 0:
+			fprintf(stderr,"ImageLoader:Erro, não foi possível alocar memória para imagem\n");
+			exit(127);
 			break;
 		case 1:
 			break;
@@ -21,32 +23,23 @@ ImageLoader::ImageLoader(){
 	isThreshSet=false;
 	dsIndex=0;
 }
-static Image ImageLoader::getImage(const char* filename){
-	Image ans;  
-
-	uint error = lodepng_decode_file(&ans.data, &ans.w, &ans.h, filename,LCT_GREY,8);
-	if(error){	
-		fprintf(stderr,"LODE: ERRO %u %s\n", error, lodepng_error_text(error));
-		fprintf(stderr, "Pulando arquivo:%s\n",filename );
-		ans.data=NULL;
-	}
-
-  return ans;
-}
-void ImageLoader::addParam(IcParamCode p){
+void ImageLoader::addParam(IcParamCode p,int* args){
+	paramArgs.push_back(args);
+	size_t noParams=params.size();
 	if(p>IC_MAX_ARG_CODE)ilError(3);
 	for(uint i=0;i<noParams;i++)if(params[i]==p)ilError(4);
 	if(p<=ICHUMOMENTS_SHA){//if param is shape
 		isShapeSet=true;
 	}
-	params[noParams++]=p;
+	params.push_back(p);
 }
-void ImageLoader::setThresh(ThreshCode p,uint* args){
+void ImageLoader::setThresh(ThreshCode p,int* args){
 	isThreshSet=true;
 	tparam=p;
 	targs=args;
 }
 void ImageLoader::addImage(const char* filename{
+	size_t noParams=params.size();
 	ds->push_back(NULL);//Not sure
 	currentData=ds[dsIndex].data;
 	if(isShapeSet&&!isThreshSet)ilError(2);

@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include "lode/lode.h"
 #include<math.h>
+#include<vector>
 enum ThreshCode{
 	ICSIMPLE_THR,
 	ICKMEAN_THR
@@ -34,7 +35,7 @@ class ImageLoader{
 		ImageLoader();
 		void addImage(const char* filename);
 		void setThresh(ThreshCode p,int* args);
-		void addParam(IcParamCode p);
+		void addParam(IcParamCode p,int* args);
 		DSItem* getDS();
 
 	private:
@@ -44,8 +45,10 @@ class ImageLoader{
 		ThreshCode tparam;
 		int* targs;
 
-		IcParamCode* params;
-		uint noParams;
+		std::vector<IcParamCode> params;
+		std::vector<int*> paramArgs;
+
+
 		static Image getImage(const char* filename);
 		static Image newImageFrom(Image* i);
 		std::vector<DSItem> ds;
