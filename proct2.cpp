@@ -1,7 +1,7 @@
 #include "proct2.hpp"
 int main(uint argc,char** argv){
-	ImageLoader* il = new ImageLoader();
-	// TODO process args	
+	DSFolders dsf;
+	ImageLoader* il = processArgs(argc,argv,&dsf);
 	DIR *dir;
 	struct dirent *ent;
 	if((dir = opendir ("path/")) == NULL){//TODO path

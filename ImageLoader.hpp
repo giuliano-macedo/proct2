@@ -2,20 +2,20 @@
 #include "lode/lode.h"
 #include <math.h>
 #include <vector>
-enum ThreshCode{
-	ICSIMPLE_THR,
-	ICKMEAN_THR
-};
 enum IcParamCode{
-	ICFOURIER_SHA,
-	ICFRACTDIM_SHA,
-	ICHUMOMENTS_SHA,
+	ILFOURIER_SHA=1,
+	ILFRACTDIM_SHA,
+	ILHUMOMENTS_SHA,
 
-	ICFOURIER_TEX,
-	ICFRACTDIM_TEX,
-	ICLBP_TEX,
+	ILFOURIER_TEX,
+	ILFRACTDIM_TEX,
+	ILLBP_TEX,
 
-	iC_NO_ARGTYPES
+	IL_NO_ARGTYPES
+};
+enum ThreshCode{
+	ILSIMPLE_THR=IL_NO_ARGTYPES,
+	ILKMEAN_THR
 };
 
 struct dataSetItem{
@@ -34,8 +34,8 @@ class ImageLoader{
 	public:
 		ImageLoader();
 		void addImage(const char* filename);
-		void setThresh(ThreshCode p,int* args);
-		void addParam(IcParamCode p,int* args);
+		void setThresh(ThreshCode p,std::vector<int> args);
+		void addParam(IcParamCode p,std::vector<int> args);
 		DSItem* getDS();
 
 	private:
@@ -43,10 +43,10 @@ class ImageLoader{
 		bool isThreshSet;
 
 		ThreshCode tparam;
-		int* targs;
+		std::vector<int> targs;
 
 		std::vector<IcParamCode> params;
-		std::vector<int*> paramArgs;
+		std::vector<std::vector<int>> paramArgs;
 
 
 		static Image getImage(const char* filename);
