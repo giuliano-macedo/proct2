@@ -1,7 +1,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <ctype.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include <vector>
 typedef unsigned int uint;
 enum ThreshCode{
@@ -24,8 +24,8 @@ std::vector<int> parseParams(char* in){
     std::vector<int> ans;
     std::vector<char> str;
     char c;
-    uint i;
-    while(c=in[i++]){
+    uint i=0;
+    while((c=in[i++])){
         if(c==','){
                 str.push_back(0);
                 ans.push_back(atoi(&str[0]));
@@ -37,12 +37,15 @@ std::vector<int> parseParams(char* in){
             }
             else{
                 fprintf(stderr, "Erro ao processar argumentos\n");
+                exit(127);
             }
         }
     }
+    str.push_back(0);
+    ans.push_back(atoi(&str[0]));
     return ans;
 }
-int main(int argc, char * argv[]){
+int main(int argc, char ** argv){
    int             c;
    struct option   long_opt[] ={
       {"help",            no_argument,       NULL, 'h'},
@@ -63,13 +66,13 @@ int main(int argc, char * argv[]){
 	std::vector<int> params;
    while((c = getopt_long(argc, argv, "h", long_opt, NULL)) != -1){
       switch(c){
-         case -1:
-         case 0:
+        case -1:
+        case 0:
             break;
         case ICFOURIER_SHA:
 			printf("voce digitou %s\n",optarg);
 			params = parseParams(optarg);
-			for(int i=0;i<params.size();i++){
+			for(uint i=0;i<params.size();i++){
 				printf("%i\n",params[i]);
 			}
 			break;
@@ -88,7 +91,7 @@ int main(int argc, char * argv[]){
 		case ICLBP_TEX:
 			printf("voce digitou %s\n",optarg);
 			break;
-         case 'h':
+        case 'h':
             // printFromFile("HELP");
             printf("AJUDAPORRA\n");
             return 0;
@@ -100,9 +103,9 @@ int main(int argc, char * argv[]){
 
          default:
              fprintf(stderr, "%s: opção invalida -- %c\n", argv[0], c);
-             fprintf(stderr, "Use `%s --help' para mais informações.\n", argv[0]);
+             fprintf(stderr, "Use '%s --help' ou '%s --ajuda' para mais informações.\n", argv[0],argv[0]);
              return -2;
-      }
-
-   }
+        }
+    }
+    return 0;
 }

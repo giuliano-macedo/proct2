@@ -1,7 +1,7 @@
-#include<stdio.h>
+#include <stdio.h>
 #include "lode/lode.h"
-#include<math.h>
-#include<vector>
+#include <math.h>
+#include <vector>
 enum ThreshCode{
 	ICSIMPLE_THR,
 	ICKMEAN_THR
