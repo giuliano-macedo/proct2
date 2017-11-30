@@ -1,11 +1,11 @@
-#include "../proct2.hpp"
+#include "../ImageLoader.hpp"
 double regularMomentOrder(Image* i,double p,double q){
 	double ans=0;
 	uint p;
 	unsigned char* im=i->data;
 	uint w=i->w;
 	uint h=i->h;
-	for(uint y=0;y<h;y++){   
+	for(uint y=0;y<h;y++){
 	    for(uint x=0;x<w;x++){
             p=im[(y*w)+x];
             if(p)ans+=pow(x,p)*pow(y,q);
@@ -19,7 +19,7 @@ double mu(Image* i,double a,double xmean,double ymean,double p,double q){
 	unsigned char* im=i->data;
 	uint w=i->w;
 	uint h=i->h;
-	for(uint y=0;y<h;y++){   
+	for(uint y=0;y<h;y++){
 	    for(uint x=0;x<w;x++){
             p=im[(y*w)+x];
             if(p)ans+=pow((x-xmean),p)*pow((y-ymean),q);
@@ -37,7 +37,7 @@ void ImageLoader::humoment_shape(Image* i){
 	double u11=mu(i,a,xm,ym,1,1);
 	double u20=mu(i,a,xm,ym,2,0);
 	double u02=mu(i,a,xm,ym,0,2);
-	
+
 	double u21=mu(i,a,xm,ym,2,1);
 	double u12=mu(i,a,xm,ym,1,2);
 
