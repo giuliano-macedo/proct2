@@ -6,7 +6,6 @@ ImageLoader::ilError(uint code){
 			exit(127);
 			break;
 		case 1:
-
 			break;
 		case 2:
 			break;
