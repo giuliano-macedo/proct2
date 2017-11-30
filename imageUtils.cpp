@@ -12,9 +12,23 @@ static Image ImageLoader::getImage(const char* filename){
 }
 static Image newImageFrom(Image* i){
     Image ans;
-    ans=*i;
+	ans.h=i->h;
+    ans.w=i->w;
 
-    ans->d=(unsigned char*)malloc(i->w*i->h);
-    if(ans->d==NULL)ilError(0);
+    ans.d=(unsigned char*)malloc(i->w*i->h);
+    if(!ans->d)ilError(0);
     return ans;
+}
+static Image newImage(uint h,uint w){
+	Image ans={NULL,480,640};
+    ans.data=(unsigned char*)malloc(i.w*i.h);
+    if(!ans.data)ilError(0);
+	return ans;
+}
+static void saveImage(Image *i,char* filename){
+	uint s=lodepng_encode_file(filename,i->data, i->w, i->h,LCT_GREY, 8));
+	if(!s){
+		fprintf(stderr, "Falha ao salvar imagem %u\n",s);
+		exit(127);
+	}
 }
