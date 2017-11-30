@@ -8,8 +8,7 @@ enum IcParamCode{
 	ILHUMOMENTS_SHA,
 
 	ILFOURIER_TEX,
-	ILFRACTDIM_TEX,
-	ILLBP_TEX,
+	ILFRACTDIMKMEANS_TEX,
 
 	IL_NO_ARGTYPES
 };
@@ -64,7 +63,6 @@ class ImageLoader{
 		void humoments_shape(Image* image);
 
 		void fourier_texture(Image* i);
-		void fractdim_texture(Image* i);
-		void lbp_texture(Image* i);
+		void fractdimkmeans_texture(Image* i);
 
 }

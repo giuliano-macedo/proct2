@@ -6,7 +6,7 @@ ImageLoader::ilError(uint code){
 			exit(127);
 			break;
 		case 1:
-		
+
 			break;
 		case 2:
 			break;
@@ -75,11 +75,8 @@ void ImageLoader::addImage(const char* filename{
 			case ILFOURIER_TEX:
 				fourier_texture(&im);
 				break;
-			case ILFRACTDIM_TEX:
-				fractdim_texture(&im);
-				break;
-			case ILLBP_TEX:
-				lbp_texture(&im);
+			case ILFRACTDIMKMEANS_TEX:
+				fractdimkmeans_texture(&im);
 				break;
 		}
 	}

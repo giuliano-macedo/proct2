@@ -45,8 +45,7 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
       {"fractalForma",    required_argument, NULL,ILFRACTDIM_SHA},
       {"momemntoshuForma",no_argument      , NULL,ILFRACTDIM_SHA},
       {"fourierTextura",  required_argument, NULL,ILFOURIER_TEX},
-      {"fractalTextura",  required_argument, NULL,ILFRACTDIM_TEX},
-      {"lbpTextura",      required_argument, NULL,ILLBP_TEX},
+      {"fractalkmeansTextura",  required_argument, NULL,ILFRACTDIM_TEX},
       {"simplesLimiar",   required_argument, NULL,ILSIMPLE_THR},
       {"kmeanLimiar",     required_argument, NULL,ILKMEAN_THR},
       {"treino",          required_argument, NULL,'t'},
@@ -65,28 +64,25 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
             case ILFOURIER_SHA:
                 ans->addParam(ILFOURIER_SHA,params);
                 break;
-            case ILFRACTDIM_SHA:      
+            case ILFRACTDIM_SHA:
                 ans->addParam(ILFRACTDIM_SHA,params);
                 break;
-            case ILHUMOMENTS_SHA:     
+            case ILHUMOMENTS_SHA:
                 ans->addParam(ILHUMOMENTS_SHA,params);
                 break;
-            case ILFOURIER_TEX:       
+            case ILFOURIER_TEX:
                 ans->addParam(ILFOURIER_TEX,params);
                 break;
-            case ILFRACTDIM_TEX:      
-                ans->addParam(ILFRACTDIM_TEX,params);
+            case ILFRACTDIMKMEANS_TEX:
+                ans->addParam(ILFRACTDIMKMEANS_TEX,params);
                 break;
-            case ILLBP_TEX:       
-                ans->addParam(ILLBP_TEX,params);
-                break;
-            case ILSIMPLE_THR:      
+            case ILSIMPLE_THR:
                 ans->setThresh(ILSIMPLE_THR,params);
                 break;
-            case ILKMEAN_THR:       
+            case ILKMEAN_THR:
                 ans->setThresh(ILKMEAN_THR,params);
                 break;
-            case 'h':       
+            case 'h':
                 printFromFile("HELP");
                 exit(0);
             case 'd':
@@ -95,11 +91,11 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
             case 't':
                 folders->train=optarg;
                 break;
-            case ':':      
-            case '?':      
+            case ':':
+            case '?':
                 fprintf(stderr, "Use `%s --help' para mais informações.\n", argv[0]);
                 exit(-2);
-            default:       
+            default:
                 fprintf(stderr, "%s: opção invalida -- %c\n", argv[0], c);
                 fprintf(stderr, "Use '%s --help' ou '%s --ajuda' para mais informações.\n", argv[0],argv[0]);
                 exit(-2);

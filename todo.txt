@@ -1,0 +1,7 @@
+fourierTextura:
+    calcular "imagem fft"
+    usar raio arbitrario
+    aumentar esse raio e somar todos os pixels que pertencem a esse raio e guardar no vetor
+fractalKmeans:
+    agrupar imagem em k imagens pelo kmeans
+    aplicar dimensao fractal varias vezes e guardar num vetor
