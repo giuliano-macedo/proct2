@@ -78,15 +78,15 @@ void dft(const Comp *sig, Comp *f, int n, int inv) {
     }
 }
 
-void fft(const Comp *sig, Comp *f, int s, int n, int inv) {
-    int i, hn = n >> 1;
+void fft(const Comp *sig, Comp *f, int s, int n, int inv) { //sig = input signal, f = output frequency, s = ? , n =length, inv = bool inverse
+    int i, hn = n >> 1;//n>>1 = n/2
     Comp ep = comp_euler((inv ? PI : -PI) / (double)hn), ei;
     Comp *pi = &ei, *pp = &ep;
     if (!hn) *f = *sig;
     else
     {
         fft(sig, f, s << 1, hn, inv);
-        fft(sig + s, f + hn, s << 1, hn, inv);
+        fft(sig + s, f + hn, s << 1, hn, inv); //s<<1 = s*2
         pi->a = 1;
         pi->b = 0;
         for (i = 0; i < hn; i++)
