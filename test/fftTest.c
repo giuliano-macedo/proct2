@@ -44,14 +44,15 @@ void fft(const Comp *sig, Comp *f, int s, int n, int inv) { //sig = input signal
         }
     }
 }
-struct Image{
+typedef struct Image{
 	unsigned char* data;
 	uint w;
 	uint h;
-};
-Comp* imageToComp(Image i,Comp* ci){
-    uint s=i->w*i->h;
-    unsigned char* d = i->data;
+} Image;
+
+Comp* imageToComp(Image im,Comp* ci){
+    uint s=im.w*im.h;
+    unsigned char* d = im.data;
     uint i;
     Comp c={0,0};
     for(i=0;i<s;i++){
@@ -60,13 +61,28 @@ Comp* imageToComp(Image i,Comp* ci){
     }
     return ci;
 }
-complexMag2Image(Comp* ci,Image i){
+void complexMag2Image(Comp* ci,Image im,unsigned* magVec){
     Comp c;
-    unsigned char* d = i.d;
-    for(uint i=0;i<i.w*i.h;i++){
+    uint i,x,y,w=im.w,h=im.h,s=w*h,m;
+    uint hw=w/2,hh=h/2;
+    unsigned char* d = im.data;
+    unsigned n=0;
+    for(i=0;i<s;i++){
         c=ci[i];
-        d[i]= sqrt(SQR(f.a)+SQR(f.b));
+        m=sqrt(SQR(c.a)+SQR(c.b));
+        x=i%w;
+        y=i/w;
+        magVec[i]=m;
+        if(m>n){
+            n=m;
+        }
+    }
+    n=255/(log(1+n));
 
+    for(i=0;i<s;i++){
+        m=magVec[i];
+        // printf("%u %.2lf\n",m,((double)m/n));
+        d[i]= (unsigned int)n*log((double)m);
     }
 }
 static void saveImage(Image *i,char* filename){
@@ -98,14 +114,18 @@ typedef struct Image Image;
 int main(){//IMPLEMENT FTT AND TEST IT HERE
 
     Image i = getImage("clown.png");
-    Comp* icompin = (Comp*)malloc(sizeof(Comp)i->w*i->h);
-    Comp* icompout = (Comp*)malloc(sizeof(Comp)i->w*i->h);
+    Comp* icompin = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
+    Comp* icompout = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
     if(!icompin||!icompout){
         fprintf(stderr,"Erro ao alocar memória para imagem complexa\n");
         exit(127);
     }
+    printf("i malloc ok\n");
     imageToComp(i,icompin);
-    fft(icompin,icomput,1,i->w*i->h,0);
-    complexMag2Image(icompout,i);
+    printf("i2c ok\n");
+    fft(icompin,icompout,1,i.w*i.h,0);
+    printf("fft ok\n");
+    complexMag2Image(icompout,i,(unsigned*)icompin);
+    printf("cm2i ok\n");
     saveImage(&i,"test.png");
 }
