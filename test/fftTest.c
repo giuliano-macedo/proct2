@@ -137,7 +137,7 @@ static Image scaleImageNNS(Image in,float dx,float dy){
     return ans;
     
 }
-#define lerp(a,b,dx,i) a+(i*(b-a)/dx)//TODO CHECK IF WORKS
+#define lin(a,b,dx,ind) a+(ind*(b-a)/dx)//MUST EXTEND TO 2D
 static Image scaleImageLIN(Image in,float delta){
     Image ans;
     unsigned char* d=(unsigned char*)malloc((int)ceil(in.w*in.h*delta*delta));
@@ -145,7 +145,7 @@ static Image scaleImageLIN(Image in,float delta){
     uint h=(int)ceil(in.h*delta);
     uint ow=in.w;
     unsigned char* im=in.data;
-    unsigned char p1,p2;
+    unsigned char p1,p2,p3,p4;
     for(uint y=0;y<h;y++){
         for(uint x=0;x<w;x++){
         p1=im[((int)(y/delta))*ow+(int)(x/delta)];
@@ -155,7 +155,7 @@ static Image scaleImageLIN(Image in,float delta){
         else{
             p2=im[((int)(y/delta))*ow];
         }
-        d[(y*w)+x]=lerp(p1,p2,delta,(x%delta));
+        d[(y*w)+x]=lin(p1,p2,delta,(x%(int)delta));
         }
     }
     ans.w=w;
@@ -177,26 +177,29 @@ Image getImage(const char* filename){
 }
 typedef struct Image Image;
 int main(int argc,char** argv){
-    if(argc!=2)return -1;
-    Image i=getImage(argv[1]);
-    
-    // Image oi = getImage(argv[1]);
-    // if(oi.data==NULL)return -1;
-    // double delt=256/178.0;
-    // Image i=scaleImageNNS(oi,delt,delt);
-
-    Comp* icompin = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
-    Comp* icompout = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
-    if(!icompin||!icompout){
-        fprintf(stderr,"Erro ao alocar memória para imagem complexa\n");
-        exit(127);
+    if(argc!=3){
+        fprintf(stderr, "[Uso] %s [arquivo.png] [saida.png]\n",argv[0]);
+        return -1;
     }
-    printf("i malloc ok\n");
-    imageToComp(i,icompin);
-    printf("i2c ok\n");
-    fft(icompin,icompout,1,i.w*i.h,0);
-    printf("fft ok\n");
-    complexMag2Image(icompout,i,(unsigned*)icompin);
-    printf("cm2i ok\n");
-    saveImage(&i,"test.png");
+    // Image i=getImage(argv[1]);
+    
+    Image oi = getImage(argv[1]);
+    if(oi.data==NULL)return -1;
+    double delt=256/178.0;
+    Image i=scaleImageLIN(oi,delt);
+
+    // Comp* icompin = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
+    // Comp* icompout = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
+    // if(!icompin||!icompout){
+    //     fprintf(stderr,"Erro ao alocar memória para imagem complexa\n");
+    //     exit(127);
+    // }
+    // printf("i malloc ok\n");
+    // imageToComp(i,icompin);
+    // printf("i2c ok\n");
+    // fft(icompin,icompout,1,i.w*i.h,0);
+    // printf("fft ok\n");
+    // complexMag2Image(icompout,i,(unsigned*)icompin);
+    // printf("cm2i ok\n");
+    saveImage(&i,argv[2]);
 }
