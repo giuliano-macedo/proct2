@@ -137,25 +137,53 @@ static Image scaleImageNNS(Image in,float dx,float dy){
     return ans;
     
 }
-#define lin(a,b,dx,ind) a+(ind*(b-a)/dx)//MUST EXTEND TO 2D
-static Image scaleImageLIN(Image in,float delta){
+    
+static Image scaleImageLIN(Image in,float dx,float dy){
     Image ans;
-    unsigned char* d=(unsigned char*)malloc((int)ceil(in.w*in.h*delta*delta));
-    uint w=(int)ceil(in.w*delta);
-    uint h=(int)ceil(in.h*delta);
-    uint ow=in.w;
+    unsigned char* d=(unsigned char*)malloc((int)ceil(in.w*in.h*dx*dy));
+    uint w=(int)ceil(in.w*dx);
+    uint h=(int)ceil(in.h*dy);
+    uint ow=in.w,oh=in.h;
     unsigned char* im=in.data;
     unsigned char p1,p2,p3,p4;
+
+    double wf,hf,d1,d2,d3,d4;
     for(uint y=0;y<h;y++){
         for(uint x=0;x<w;x++){
-        p1=im[((int)(y/delta))*ow+(int)(x/delta)];
-        if(x+1<w){
-            p2=im[((int)(y/delta))*ow+(int)(x+1/delta)];
-        }
-        else{
-            p2=im[((int)(y/delta))*ow];
-        }
-        d[(y*w)+x]=lin(p1,p2,delta,(x%(int)delta));
+            wf=((double)x*ow)/w;
+            hf=((double)y*oh)/h;
+
+            wf=wf-floor(wf);
+            hf=hf-floor(hf);
+
+            d1=(1-wf) * (1-hf);
+            d2= wf    * (1-hf);
+            d3=(1-wf) * hf;
+            d4= wf    * hf;
+
+            p1=im[((int)(y/dy))*ow+(int)(x/dx)];
+            if(x+1<w && y+1<h){
+                p2=im[((int)(y/dy))*ow+(int)((x)/dx)+1];
+                p3=im[((int)((y)/dy)+1)*ow+(int)(x/dx)];
+                p4=im[((int)((y)/dy)+1)*ow+(int)(x/dx)+1];
+            }
+            else if(x+1<w){
+                p2=im[((int)(y/dy))*ow+(int)((x)/dx)+1];
+                p3=im[(int)(x/dy)];
+                p4=im[(int)(x/dy)+1];
+            }
+            else if(y+1<h){
+                p2=im[((int)(y/dy))*ow];
+                p3=im[((int)((y)/dy)+1)*ow+(int)(x/dx)];
+                p4=im[((int)((y)/dy)+1)*ow];
+            }
+            else{
+                p2=im[(int)(1/dy)];
+                p3=im[((int)(1/dy))*ow];
+                p4=im[((int)(1/dy))*ow+(int)(1/dx)];
+            }
+
+            d[(y*w)+x]=(p1*d1)+(p2*d2)+(p3*d3)+(p4*d4);
         }
     }
     ans.w=w;
@@ -181,25 +209,27 @@ int main(int argc,char** argv){
         fprintf(stderr, "[Uso] %s [arquivo.png] [saida.png]\n",argv[0]);
         return -1;
     }
-    // Image i=getImage(argv[1]);
     
     Image oi = getImage(argv[1]);
     if(oi.data==NULL)return -1;
-    double delt=256/178.0;
-    Image i=scaleImageLIN(oi,delt);
+    double deltax=(1<<(int)(ceil(log2(oi.w))))/(double)oi.w;//2^ceil(log2(w))
+    double deltay=(1<<(int)(ceil(log2(oi.h))))/(double)oi.h;//2^ceil(log2(h))
 
-    // Comp* icompin = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
-    // Comp* icompout = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
-    // if(!icompin||!icompout){
-    //     fprintf(stderr,"Erro ao alocar memória para imagem complexa\n");
-    //     exit(127);
-    // }
-    // printf("i malloc ok\n");
-    // imageToComp(i,icompin);
-    // printf("i2c ok\n");
-    // fft(icompin,icompout,1,i.w*i.h,0);
-    // printf("fft ok\n");
-    // complexMag2Image(icompout,i,(unsigned*)icompin);
-    // printf("cm2i ok\n");
-    saveImage(&i,argv[2]);
+
+    Image i=scaleImageLIN(oi,deltax,deltay);
+
+    Comp* icompin = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
+    Comp* icompout = (Comp*)malloc(sizeof(Comp)*i.w*i.h);
+    if(!icompin||!icompout){
+        fprintf(stderr,"Erro ao alocar memória para imagem complexa\n");
+        exit(127);
+    }
+    printf("i malloc ok\n");
+    imageToComp(i,icompin);
+    printf("i2c ok\n");
+    fft(icompin,icompout,1,i.w*i.h,0);
+    printf("fft ok\n");
+    complexMag2Image(icompout,i,(unsigned*)icompin);
+    printf("cm2i ok\n");
+    saveImage(&i, argv[2]);
 }
