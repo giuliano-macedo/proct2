@@ -2,49 +2,8 @@
 #include<stdlib.h>
 #include "../lodepng/lodepng.h"
 #include <math.h>
-typedef struct Comp {
-    /* comp of the form: a + bi */
-    double a, b;
-} Comp;
+#include "../fft/fft.h"
 
-Comp comp_euler(double x) {
-    Comp res;
-    res.a = cos(x);
-    res.b = sin(x);
-    return res;
-}
-
-#define PI 3.141592653589793
-#define SQR(x) ((x) * (x))
-#define comp_mul_self(c, c2) \
-do { \
-    double ca = c->a; \
-    c->a = ca * c2->a - c->b * c2->b; \
-    c->b = c->b * c2->a + ca * c2->b; \
-} while (0)
-void fft(const Comp *sig, Comp *f, int s, int n, int inv) { //sig = input signal, f = output frequency, s = ? , n =length, inv = bool inverse
-    int i, hn = n >> 1;//n>>1 = n/2
-    Comp ep = comp_euler((inv ? PI : -PI) / (double)hn), ei;
-    Comp *pi = &ei, *pp = &ep;
-    if (!hn) *f = *sig;
-    else
-    {
-        fft(sig, f, s << 1, hn, inv);
-        fft(sig + s, f + hn, s << 1, hn, inv); //s<<1 = s*2
-        pi->a = 1;
-        pi->b = 0;
-        for (i = 0; i < hn; i++)
-        {
-            Comp even = f[i], *pe = f + i, *po = pe + hn;
-            comp_mul_self(po, pi);
-            pe->a += po->a;
-            pe->b += po->b;
-            po->a = even.a - po->a;
-            po->b = even.b - po->b;
-            comp_mul_self(pi, pp);
-        }
-    }
-}
 typedef struct Image{
 	unsigned char* data;
 	uint w;
@@ -61,9 +20,7 @@ Comp* imageToComp(Image im,Comp* ci){
         ci[i]=c;
     }
     return ci;
-}
-
- 
+} 
 
 void complexMag2Image(Comp* ci,Image im,unsigned* magVec){
     Comp c;
@@ -203,7 +160,6 @@ Image getImage(const char* filename){
 
   return ans;
 }
-typedef struct Image Image;
 int main(int argc,char** argv){
     if(argc!=3){
         fprintf(stderr, "[Uso] %s [arquivo.png] [saida.png]\n",argv[0]);
