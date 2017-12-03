@@ -40,7 +40,7 @@ std::vector<double> complexMag(Comp* ci,uint w,uint h,uint r){
     double s,dis;
     double temp1,temp2;
     // ans.reserve(w/r);
-    for(uint i=0;i<w/r;i++){
+    for(uint i=0;i<(w/r)+1;i++){
         ans.push_back(0);
     }
     for(y=0;y<h;y++){
@@ -64,7 +64,7 @@ std::vector<double> complexMag(Comp* ci,uint w,uint h,uint r){
                 temp2=h-y;
             }
             dis=hypot(temp1,temp2);
-            ans[(int)floor(dis/r)]+=m;
+            ans[(int)floor(dis/r)+1]+=m;
             
         }
     }
