@@ -6,5 +6,5 @@ fftTestImage:fftTestImage.c
 	g++ -Wall -Wno-unused-function fftTestImage.c ../fft/fft.c ../lodepng/lodepng.cpp -lm -o fftTestImage
 saveTest:saveTest.c
 	g++ -Wall -Wno-unused-function saveTest.c ../lodepng/lodepng.cpp -lm -o saveTest
-clear:
-	rm fftTestImage saveTest
+clean:
+	rm fftTestImage saveTest fftRings fftRings2

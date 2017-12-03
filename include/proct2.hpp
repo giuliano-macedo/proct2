@@ -1,5 +1,6 @@
 #include "ImageLoader.hpp"
 #include <getopt.h>
+#include <dirent.h>
 #include <ctype.h>
 
 struct DatasetFolders{
@@ -8,5 +9,5 @@ struct DatasetFolders{
 };
 typedef struct DatasetFolders DSFolders;
 
-ImageLoader* processArgs(int argc,char** argc,DSFolders* folders);
+ImageLoader* processArgs(int argc,char** argv,DSFolders* folders);
 void printFromFile(char* filename);

@@ -1,34 +1,34 @@
-#include "../ImageLoader.hpp"
+#include "ImageLoader.hpp"
 double regularMomentOrder(Image* i,double p,double q){
 	double ans=0;
-	uint p;
+	uint pix;
 	unsigned char* im=i->data;
 	uint w=i->w;
 	uint h=i->h;
 	for(uint y=0;y<h;y++){
 	    for(uint x=0;x<w;x++){
-            p=im[(y*w)+x];
-            if(p)ans+=pow(x,p)*pow(y,q);
+            pix=im[(y*w)+x];
+            if(pix)ans+=pow(x,p)*pow(y,q);
 	    }
 	}
 	return ans;
 }
 double mu(Image* i,double a,double xmean,double ymean,double p,double q){
 	double ans=0;
-	uint p;
+	uint pix;
 	unsigned char* im=i->data;
 	uint w=i->w;
 	uint h=i->h;
 	for(uint y=0;y<h;y++){
 	    for(uint x=0;x<w;x++){
-            p=im[(y*w)+x];
-            if(p)ans+=pow((x-xmean),p)*pow((y-ymean),q);
+            pix=im[(y*w)+x];
+            if(pix)ans+=pow((x-xmean),p)*pow((y-ymean),q);
 	    }
 	}
-	double gamma=((p+q)/2)+1
+	double gamma=((p+q)/2)+1;
 	return ans/pow(a,gamma);
 }
-void ImageLoader::humoment_shape(Image* i){
+void ImageLoader::humoments_shape(Image* i){
 	//TODO REVIEW FORMULA
 	double a=regularMomentOrder(i,1,1);
 	double xm=regularMomentOrder(i,1,0)/a;
@@ -53,7 +53,7 @@ void ImageLoader::humoment_shape(Image* i){
 
 	temp1=u30-(3*u12);
 	temp2=(3*u21)-u03;
-	currentData.push_back((temp1*temp1)+(temp2*temp2))//phi3
+	currentData.push_back((temp1*temp1)+(temp2*temp2));//phi3
 
 	temp1=u30+u12;
 	temp2=u21+u03;

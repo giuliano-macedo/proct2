@@ -1,5 +1,5 @@
 #include "proct2.hpp"
-void printFromFile(char* filename){
+void printFromFile(const char* filename){
     char buff[128];
     FILE* f = fopen(filename,"r");
     if(!f)fprintf(stderr,"Erro ao abrir arquivo %s\n",filename);
@@ -10,8 +10,11 @@ void printFromFile(char* filename){
     }
 }
 std::vector<int> parseParams(char* in){
-    if(in==NULL)return NULL;
     std::vector<int> ans;
+    if(in==NULL){
+        ans.push_back(0);
+        return ans;
+    }
     std::vector<char> str;
     char c;
     uint i=0;
@@ -45,7 +48,7 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
       {"fractalForma",    required_argument, NULL,ILFRACTDIM_SHA},
       {"momemntoshuForma",no_argument      , NULL,ILFRACTDIM_SHA},
       {"fourierTextura",  required_argument, NULL,ILFOURIER_TEX},
-      {"fractalkmeansTextura",  required_argument, NULL,ILFRACTDIM_TEX},
+      {"fractalkmeansTextura",  required_argument, NULL,ILFRACTDIMKMEANS_TEX},
       {"simplesLimiar",   required_argument, NULL,ILSIMPLE_THR},
       {"kmeanLimiar",     required_argument, NULL,ILKMEAN_THR},
       {"treino",          required_argument, NULL,'t'},

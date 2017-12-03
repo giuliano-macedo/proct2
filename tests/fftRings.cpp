@@ -59,7 +59,7 @@ std::vector<double> sumRings(MagImage mi,uint r){
     while(r1<m){
         s=0.0;
         for(y=0;y<h;y++){
-            for(uint x=0;x<w;x++){
+            for(x=0;x<w;x++){
                 if(x<hw&&y<hh){
                     temp1=x;
                     temp2=y;

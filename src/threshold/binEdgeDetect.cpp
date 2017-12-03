@@ -1,4 +1,4 @@
-#include "../proct2.hpp"
+#include "proct2.hpp"
 Image binEdgeDetect(Image* i){
 	
 }

@@ -1,5 +1,5 @@
 #include "proct2.hpp"
-int main(uint argc,char** argv){
+int main(int argc,char** argv){
 	DSFolders dsf;
 	ImageLoader* il = processArgs(argc,argv,&dsf);
 	DIR *dir;
@@ -8,12 +8,14 @@ int main(uint argc,char** argv){
 		fprintf(stderr, "Erro pasta de banco de dados não encontrada\n" );
 		return 127;	
 	}
+	ent=readdir(dir);
+	il->init(ent->d_name);
 	while((ent=readdir(dir))!=NULL){
-		il->add(ent->d_name);
+		il->addImage(ent->d_name);
 	}
 	closedir(dir);
-	DSItem* dataset = ip->getDS();
-	delete ip;
+	DSItem* dataset = il->getDS();
+	delete il;
 	//classify, calculate percentage,end
 	return 0;
 }

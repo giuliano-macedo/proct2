@@ -1,5 +1,7 @@
 #include <stdio.h>
-#include "lode/lode.h"
+#include "lodepng.h"
+#include "fft.h"
+#include "imageUtils.h"
 #include <math.h>
 #include <vector>
 enum IcParamCode{
@@ -21,13 +23,8 @@ struct dataSetItem{
 	std::vector<double> data;
 	uint label;
 };
-struct Image{
-	unsigned char* data;
-	uint w;
-	uint h;
-};
+
 typedef struct dataSetItem DSItem;
-typedef struct Image Image;
 typedef unsigned int uint;
 class ImageLoader{
 	public:
@@ -35,11 +32,21 @@ class ImageLoader{
 		void addImage(const char* filename);
 		void setThresh(ThreshCode p,std::vector<int> args);
 		void addParam(IcParamCode p,std::vector<int> args);
+		void init(const char* filename);
+		void saveArff(const char* filename);
 		DSItem* getDS();
-
-	private:
 		bool isShapeSet;
 		bool isThreshSet;
+
+	private:
+		Image mainImg;
+		Image thresholdImg;
+		Image edgeImg;
+		Image scaledImg;
+
+		Comp* compImgIn;
+		Comp* compImgOut;
+
 
 		ThreshCode tparam;
 		std::vector<int> targs;
@@ -47,12 +54,15 @@ class ImageLoader{
 		std::vector<IcParamCode> params;
 		std::vector<std::vector<int>> paramArgs;
 
-
-		static Image getImage(const char* filename);
-		static Image newImageFrom(Image* i);
+		Image newImageFrom(Image* i);
+		void loadImageTo(const char* filename,Image *im);
+		void ilError(uint code);
 		std::vector<DSItem> ds;
 		std::vector<double> currentData;
 		uint dsIndex;
+
+		uint imgDeltax;
+		uint imgDeltay;
 
 		Image simple_threshold(Image* i);
 		Image kmean_threshold(Image* i);
@@ -65,4 +75,4 @@ class ImageLoader{
 		void fourier_texture(Image* i);
 		void fractdimkmeans_texture(Image* i);
 
-}
+};
