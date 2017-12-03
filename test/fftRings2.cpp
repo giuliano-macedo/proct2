@@ -25,26 +25,28 @@ Comp* imageToComp(Image im,Comp* ci){
 
 
 #define hypot(x,y) sqrt(SQR(x)+SQR(y))
-std::vector<double> complexMag(Comp* ci,uint w,uint h,uint r){
+std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){ 
+    //soma camadas do circulo da imagem de magnitude
+    //como essa implementação do fft faz uma imagem na qual
+    //as 4 partições estão rotacionadas 180 graus, portanto o calculo se baseia na
+    //distância das bordas
     Comp c;
     std::vector<double> ans;
 
     uint hw=w/2;
     uint hh=h/2;
 
-    uint r1=0;
-    uint r2=r;
 
     double m;
     uint y,x;
     double s,dis;
     double temp1,temp2;
-    // ans.reserve(w/r);
-    for(uint i=0;i<(w/r)+1;i++){
+    temp1=w/r;
+    for(uint i=0;i<temp1;i++){
         ans.push_back(0);
     }
     for(y=0;y<h;y++){
-        for(uint x=0;x<w;x++){
+        for(x=0;x<w;x++){
             c=ci[(y*w)+x];
             m=hypot(c.a,c.b);
             if(x<hw&&y<hh){
@@ -64,13 +66,11 @@ std::vector<double> complexMag(Comp* ci,uint w,uint h,uint r){
                 temp2=h-y;
             }
             dis=hypot(temp1,temp2);
-            ans[(int)floor(dis/r)+1]+=m;
+            ans[(int)(dis/r)]+=m;
             
         }
     }
     ans.push_back(s);
-    r1+=r;
-    r2+=r;
     return ans;
 }
 
@@ -165,7 +165,7 @@ int main(int argc,char** argv){
     printf("i2c ok\n");
     fft(icompin,icompout,1,i.w*i.h,0);
     printf("fft ok\n");
-    std::vector<double> sum = complexMag(icompout,i.w,i.h,r);
+    std::vector<double> sum = sumComplexMagsLayers(icompout,i.w,i.h,r);
     for(uint i=0;i<sum.size();i++){
         printf("[%i] %.2lf\n",i,sum[i]);
     }
