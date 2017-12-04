@@ -34,7 +34,7 @@ class ImageLoader{
 		void addParam(IcParamCode p,std::vector<int> args);
 		void init(const char* filename);
 		void saveArff(const char* filename);
-		DSItem* getDS();
+		std::vector<DSItem> getDS();
 		bool isShapeSet;
 		bool isThreshSet;
 
@@ -54,7 +54,7 @@ class ImageLoader{
 		std::vector<IcParamCode> params;
 		std::vector<std::vector<int>> paramArgs;
 
-		Image newImageFrom(Image* i);
+		// Image newImageFrom(Image* i);
 		void loadImageTo(const char* filename,Image *im);
 		void ilError(uint code);
 		std::vector<DSItem> ds;
@@ -64,15 +64,15 @@ class ImageLoader{
 		uint imgDeltax;
 		uint imgDeltay;
 
-		Image simple_threshold(Image* i);
-		Image kmean_threshold(Image* i);
-		Image binEdgeDetect(Image* i);
+		void simple_threshold(Image* i);
+		void kmean_threshold(Image* i);//TODO
+		void binEdgeDetect(Image* i);//TODO
 
-		void fourier_shape(Image* i);
-		void fractdim_shape(Image* i);
+		void fourier_shape(Image* i);//TODO
+		void fractdim_shape(Image* i);//TODO test
 		void humoments_shape(Image* image);
 
 		void fourier_texture(Image* i);
-		void fractdimkmeans_texture(Image* i);
+		void fractdimkmeans_texture(Image* i);//TODO
 
 };

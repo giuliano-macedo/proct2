@@ -10,10 +10,12 @@ SRC      :=                      \
 	$(wildcard src/*.c*)         \
 
 OBJECTS := $(SRC:%.c%=build/%.o)
+# OBJECTS := $(SRC:%=build/%.o)
 
 all: build proct2
 
-build/%.o: %.cpp
+build/%.o: %.c%
+# build/%.o: %
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
@@ -26,3 +28,4 @@ proct2: $(OBJECTS)
 
 clean:
 	rm -rf build/*
+	rm proct2

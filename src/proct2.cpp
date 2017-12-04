@@ -14,7 +14,7 @@ int main(int argc,char** argv){
 		il->addImage(ent->d_name);
 	}
 	closedir(dir);
-	DSItem* dataset = il->getDS();
+	std::vector<DSItem> dataset = il->getDS();
 	delete il;
 	//classify, calculate percentage,end
 	return 0;

@@ -104,11 +104,14 @@ void ImageLoader::saveArff(const char* filename){
 		fprintf(f,"%u\n",ad.label);
 	}
 }
+std::vector<DSItem> ImageLoader::getDS(){
+	return ds;
+}
 void ImageLoader::addImage(const char* filename){
 	size_t noParams=params.size();
 	ds.push_back({std::vector<double>(),0});//Not sure
 	currentData=ds[dsIndex].data;
-	Image im,tim,eim;
+	Image im,tim;
 	loadImageTo(filename,&im);
 	if(im.data==NULL){
 		printf("Pulando arquivo:%s\n",filename );
@@ -117,13 +120,13 @@ void ImageLoader::addImage(const char* filename){
 	if(isThreshSet){
 		switch(tparam){
 			case ILSIMPLE_THR:
-				tim=simple_threshold(&im);
+				simple_threshold(&im);
 				break;
 			case ILKMEAN_THR:
-				tim=kmean_threshold(&im);
+				kmean_threshold(&im);
 				break;
 		}
-		eim=binEdgeDetect(&tim);
+		binEdgeDetect(&tim);
 	}
 
 	for(uint i=0;i<noParams;i++){

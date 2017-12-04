@@ -1,10 +1,10 @@
 #include "ImageLoader.hpp"
-Image ImageLoader::simple_threshold(Image* i){
-    Image ans=newImageFrom(i);
+void ImageLoader::simple_threshold(Image* i){
+    Image thresholdImg=newImageFrom(i);
 
     uint h=i->h;
     uint w=i->w;
-    unsigned char* im =i->data,*ansd=ans.data;
+    unsigned char* im =i->data,*ansd=thresholdImg.data;
     bool sign;
     int t=targs[0];
     if(t<0){
@@ -23,5 +23,4 @@ Image ImageLoader::simple_threshold(Image* i){
             ansd[index]=((p<t)!=sign)?1:0;
 	    }
 	}
-    return ans;
 }

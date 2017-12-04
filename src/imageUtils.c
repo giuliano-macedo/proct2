@@ -9,7 +9,7 @@ void iuEror(int x){
 			exit(127);
 	}
 }
-Image loadimage(const char* filename){
+Image loadImage(const char* filename){
 	Image ans;
 
 	uint error = lodepng_decode_file(&ans.data, &ans.w, &ans.h, filename,LCT_GREY,8);
