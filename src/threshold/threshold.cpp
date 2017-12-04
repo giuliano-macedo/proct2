@@ -1,4 +1,4 @@
-#include "proct2.hpp"
+#include "ImageLoader.hpp"
 Image ImageLoader::simple_threshold(Image* i){
     Image ans=newImageFrom(i);
 

@@ -1,4 +1,4 @@
-#include "proct2.hpp"
-Image binEdgeDetect(Image* i){
+#include "ImageLoader.hpp"
+void ImageLoader::binEdgeDetect(Image* i){
 	
 }
