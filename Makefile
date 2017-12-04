@@ -9,7 +9,7 @@ SRC      :=                      \
 	$(wildcard src/threshold/*.cpp) \
 	$(wildcard src/*.c*)         \
 
-OBJECTS := $(SRC:%.cpp=build/%.o)
+OBJECTS := $(SRC:%.c%=build/%.o)
 
 all: build proct2
 
