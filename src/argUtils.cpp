@@ -57,7 +57,7 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
       {NULL,            0,                 NULL, 0  }
    };
     std::vector<int> params;
-    while((c = getopt_long(argc, argv, "h", long_opt, NULL)) != -1){
+    while((c = getopt_long(argc, argv, "ht:d:", long_opt, NULL)) != -1){
         //TODO; check params size for each function, dont make paramparse on certain functions
         params=parseParams(optarg);
         switch(c){
@@ -106,6 +106,14 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
     }
     if(ans->isShapeSet&&!ans->isThreshSet){
         fprintf(stderr, "Erro, se uma função de forma for selecionada, uma de limiarização também precisa ser\n");
+        exit(127);
+    }
+    if(folders->train==NULL){
+        fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de treino com %s -t [pasta]\n",argv[0]);
+        exit(127);
+    }
+    if(folders->test==NULL){
+        fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de teste com %s -d [pasta]\n",argv[0]);
         exit(127);
     }
     return 0;

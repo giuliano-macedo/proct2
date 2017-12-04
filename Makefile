@@ -9,13 +9,13 @@ SRC      :=                      \
 	$(wildcard src/threshold/*.cpp) \
 	$(wildcard src/*.c*)         \
 
-OBJECTS := $(SRC:%.c%=build/%.o)
-# OBJECTS := $(SRC:%=build/%.o)
+# OBJECTS := $(SRC:%.c%=build/%.o)
+OBJECTS := $(SRC:%=build/%.o)
 
 all: build proct2
 
-build/%.o: %.c%
-# build/%.o: %
+# build/%.o: %.c%
+build/%.o: %
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
 
