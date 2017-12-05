@@ -65,12 +65,14 @@ private:
 	unsigned char* img;
 	uint imgw;
 	uint imgh;
+	uint imgs;
 
 public:
 	Convolutioner(Image in,Kernel k){
 		img=in.data;
 		imgw=in.w;
 		imgh=in.h;
+		imgs=imgw*imgh;
 
 		ker=k.data;
 		kw=k.w;
@@ -109,21 +111,33 @@ public:
 
 	   	uint x,y;
 		int ans=0;
-		for(y=0;y<kh;y++){
-    		if(j>imgh-1){
-    			// j-=imgh;
-    			j=imgh-1;
-    		}
-			for(x=0;x<kw;x++){
-	    		if(i>imgw-1){
-	    			// i-=imgw;
-	    			i=imgw-1;
-	    		}
-	    		ans+=(int)(ker[(y*kw)+x]*img[(j*imgw)+i]);
-	    		i++;
-       		}
-	    	j++;
-   		}
+		// for(y=0;y<kh;y++){
+  //   		if(j>imgh-1){
+  //   			// j-=imgh;
+  //   			j=imgh-1;
+  //   		}
+		// 	for(x=0;x<kw;x++){
+	 //    		if(i>imgw-1){
+	 //    			// i-=imgw;
+	 //    			i=imgw-1;
+	 //    		}
+	 //    		ans+=(int)(ker[(y*kw)+x]*img[(j*imgw)+i]);
+	 //    		i++;
+  //      		}
+	 //    	j++;
+  //  		}
+		uint m=(j*imgw)+i;
+		for(y=0;y<ks;y++){
+
+			if((y+1)%kw){
+				m+=imgw;
+			}
+			if(m>imgs-1){
+				m=imgs-1;
+			}
+			ans+=(int)ker[y]*img[m];
+			m++;
+		}
    		if(ans<0){
    			return 0;
    		}
