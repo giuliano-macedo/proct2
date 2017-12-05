@@ -1,7 +1,7 @@
 CC=g++ -Wall -Wno-unused-function -I../include/
 F=../src/fft.c ../src/lodepng.cpp -lm
-canny:canny.c
-	 $(CC) canny.c $(F) -o canny
+canny:canny.cpp
+	 $(CC) canny.cpp $(F) -o canny
 kmeans:kmeans.c
 	 $(CC) kmeans.c $(F) -o kmeans
 fftRings2:fftRings2.cpp

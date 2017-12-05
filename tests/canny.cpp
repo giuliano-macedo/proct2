@@ -4,6 +4,7 @@
 #include<math.h>
 #include "lodepng.h"
 #include<time.h>
+#define PI 3.141592653589793
 typedef struct Image{
     unsigned char* data;
     uint w;
@@ -14,6 +15,44 @@ typedef struct Kernel{
 	uint w;
 	uint h;
 } Kernel;
+void printKer(Kernel ker){
+	for(uint i=0;i<ker.w*ker.h;i++){
+		printf("%lf,",ker.data[i]);
+		if(!((i+1)%ker.w)){
+			putchar('\n');
+		}
+	}
+}
+void normalizeKernel(Kernel *k){
+	uint i;
+	double s;
+	double* ker=k->data;
+	uint ks=k->w*k->h;
+	for(i=0;i<ks;i++){
+		s+=ker[i];
+	}
+	for(i=0;i<ks;i++){
+		ker[i]/=s;
+	}
+}
+Kernel genGaussKernel(uint size,double s){
+	double *d =(double*)malloc(size*size*sizeof(double));
+	Kernel ans={d,size,size};
+	s*=s;
+	int x,y;
+	uint halfSize=size/2;
+	for(uint i=0;i<size;i++){
+		for(uint j=0;j<size;j++){
+			x=i-halfSize;
+			y=j-halfSize;
+			d[(i*size)+j]=1.0/(2*PI*s*exp( ( (x*x) + (y*y) )/(2*s) ) ); 
+
+		}
+	}
+	normalizeKernel(&ans);
+	printKer(ans);
+	return ans;
+}
 class Convolutioner{
 private:
 	double* ker;
@@ -52,16 +91,6 @@ public:
 		kw=k.w;
 		kh=k.h;
 	}
-	void normalizeKernel(){
-		uint i;
-		double s;
-		for(i=0;i<ks;i++){
-			s+=ker[i];
-		}
-		for(i=0;i<ks;i++){
-			ker[i]/=s;
-		}
-	}
 	unsigned char convoluteAt(uint i,uint j){
 		if((int)(i-hkw)<0){
 			// i+=imgw-hkw;
@@ -79,7 +108,7 @@ public:
 		}
 
 	   	uint x,y;
-		unsigned char ans=0;
+		int ans=0;
 		for(y=0;y<kh;y++){
     		if(j>imgh-1){
     			// j-=imgh;
@@ -90,10 +119,13 @@ public:
 	    			// i-=imgw;
 	    			i=imgw-1;
 	    		}
-	    		ans+=(unsigned char)(ker[(y*kw)+x]*img[(j*imgw)+i]);
+	    		ans+=(int)(ker[(y*kw)+x]*img[(j*imgw)+i]);
 	    		i++;
        		}
 	    	j++;
+   		}
+   		if(ans<0){
+   			return 0;
    		}
    		return (unsigned char)ans;	
 	}
@@ -121,28 +153,27 @@ static void saveImage(Image *i,const char* filename){
 void canny(Image in,Image *out){
 	// unsigned char *im=in.data;
 	unsigned char*d=out->data;
-	double temp1[9]={-1,0,1,
-				    -1,0,1,
-				    -1,0,1
-				};
-	Convolutioner * convX = new Convolutioner(in,{temp1,3,3});
-	double temp2[9]={1,1,1,
-				    0,0,0,
-				    -1,-1,-1
-				};
-	Convolutioner * convY = new Convolutioner(in,{temp2,3,3});
-	// conv->normalizeKernel();
+	// double temp1[9]={-1,0,1,
+	// 			    -1,0,1,
+	// 			    -1,0,1
+	// 			};
+	// Convolutioner * convX = new Convolutioner(in,{temp1,3,3});
+	// double temp2[9]={1,1,1,
+	// 			    0,0,0,
+	// 			    -1,-1,-1
+	// 			};
+	// Convolutioner * convY = new Convolutioner(in,{temp2,3,3});
+	Convolutioner* conv = new Convolutioner(in,genGaussKernel(5,2.5));
 	uint w=in.w;
 	uint h=in.h;
 	uint x,y;
 	uint cx,cy;
 	for(y=0;y<h;y++){
        for(x=0;x<w;x++){
-    		cx=convX->convoluteAt(x,y);
-			cy=convY->convoluteAt(x,y);
-			printf("%lf\n",sqrt((cx*cx)+(cy*cy)));
-			return;
-    		d[(y*w)+x]=sqrt((cx*cx)+(cy*cy));
+    		// cx=convX->convoluteAt(x,y);
+			// cy=convY->convoluteAt(x,y);
+    		// d[(y*w)+x]=sqrt((cx*cx)+(cy*cy));
+       		d[(y*w)+x]=conv->convoluteAt(x,y);
        }
    }
 }
