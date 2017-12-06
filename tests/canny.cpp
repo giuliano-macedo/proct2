@@ -126,16 +126,14 @@ public:
   //      		}
 	 //    	j++;
   //  		}
+		//otimizado
 		uint m=(j*imgw)+i;
 		for(y=0;y<ks;y++){
 
-			if((y+1)%kw){
-				m+=imgw;
-			}
 			if(m>imgs-1){
-				m=imgs-1;
+				m-=hkw;
 			}
-			ans+=(int)ker[y]*img[m];
+			ans+=(int)(ker[y]*img[m]);
 			m++;
 		}
    		if(ans<0){
@@ -166,28 +164,46 @@ static void saveImage(Image *i,const char* filename){
 
 void canny(Image in,Image *out){
 	// unsigned char *im=in.data;
-	unsigned char*d=out->data;
-	// double temp1[9]={-1,0,1,
-	// 			    -1,0,1,
-	// 			    -1,0,1
-	// 			};
-	// Convolutioner * convX = new Convolutioner(in,{temp1,3,3});
-	// double temp2[9]={1,1,1,
-	// 			    0,0,0,
-	// 			    -1,-1,-1
-	// 			};
-	// Convolutioner * convY = new Convolutioner(in,{temp2,3,3});
-	Convolutioner* conv = new Convolutioner(in,genGaussKernel(5,2.5));
 	uint w=in.w;
 	uint h=in.h;
+	
 	uint x,y;
+
+	unsigned char* blurd =(unsigned char*)malloc(in.h*in.w);
+	Image blurImg={blurd,in.w,in.h};
+	Convolutioner* blurConv = new Convolutioner(in,genGaussKernel(3,1.5));
+    for(y=0;y<h;y++){
+       for(x=0;x<w;x++){
+    		blurd[(y*w)+x]=blurConv->convoluteAt(x,y);
+    	}
+	}
+	
+	unsigned char*d=out->data;
+	double temp1[9]={-2,0,2,
+				    -2,0,2,
+				    -2,0,2
+				};
+	Convolutioner * convX = new Convolutioner(blurImg,{temp1,3,3});
+	double temp2[9]={2,2,2,
+				    0,0,0,
+				    -2,-2,-2
+				};
+	Convolutioner * convY = new Convolutioner(blurImg,{temp2,3,3});
 	uint cx,cy;
+
+	unsigned char p;
 	for(y=0;y<h;y++){
        for(x=0;x<w;x++){
-    		// cx=convX->convoluteAt(x,y);
-			// cy=convY->convoluteAt(x,y);
-    		// d[(y*w)+x]=sqrt((cx*cx)+(cy*cy));
-       		d[(y*w)+x]=conv->convoluteAt(x,y);
+    		cx=convX->convoluteAt(x,y);
+			cy=convY->convoluteAt(x,y);
+    		p=sqrt((cx*cx)+(cy*cy));
+    		if(p<50){
+    			p=0;
+    		}
+    		else{
+    			p=255;
+    		}
+    		d[(y*w)+x]=p;
        }
    }
 }
