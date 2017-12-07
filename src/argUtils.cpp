@@ -1,16 +1,11 @@
 #include "proct2.hpp"
-void printFromFile(const char* filename){
-    char buff[128];
-    FILE* f = fopen(filename,"r");
-    if(!f)fprintf(stderr,"Erro ao abrir arquivo %s\n",filename);
-    size_t s;
-     while((s=fread(buff,1,128,f))){
-        buff[s]=0;
-        printf("%s",buff);
-    }
-}
-std::vector<int> parseParams(char* in){
-    std::vector<int> ans;
+const char* PROCT2HELP = "\
+[USO] ./proct2 -t [caminho para imagens de treino] -d [caminho para imagens de teste] [opções]\n\
+opções disponíveis\n\
+";
+std::vector<double> parseParams(char* in){
+    if(!in)return std::vector<double>();
+    std::vector<double> ans;
     if(in==NULL){
         ans.push_back(0);
         return ans;
@@ -21,21 +16,20 @@ std::vector<int> parseParams(char* in){
     while((c=in[i++])){
         if(c==','){
                 str.push_back(0);
-                ans.push_back(atoi(&str[0]));
+                ans.push_back(atof(&str[0]));
                 str.clear();
         }
         else{
-            if(isdigit(c)||c=='-'){
+            if(isdigit(c)||c=='-'||c=='.'){
                 str.push_back(c);
             }
             else{
-                fprintf(stderr, "Erro ao processar argumentos\n");
-                exit(127);
+                return std::vector<double>();
             }
         }
     }
     str.push_back(0);
-    ans.push_back(atoi(&str[0]));
+    ans.push_back(atof(&str[0]));
     return ans;
 }
 ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
@@ -44,28 +38,23 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
    struct option   long_opt[] ={
       {"help",            no_argument,       NULL, 'h'},
       {"ajuda",           no_argument,       NULL, 'h'},
-      {"fourierForma",    required_argument, NULL,ILFOURIER_SHA},
       {"fractalForma",    required_argument, NULL,ILFRACTDIM_SHA},
-      {"momemntoshuForma",no_argument      , NULL,ILFRACTDIM_SHA},
+      {"momentoshuForma",no_argument      , NULL,ILHUMOMENTS_SHA},
       {"fourierTextura",  required_argument, NULL,ILFOURIER_TEX},
-      {"fractalkmeansTextura",  required_argument, NULL,ILFRACTDIMKMEANS_TEX},
-      {"simplesLimiar",   required_argument, NULL,ILSIMPLE_THR},
-      {"kmeanLimiar",     required_argument, NULL,ILKMEAN_THR},
+      {"atividaderedeTextura",  required_argument, NULL,ILNETACTIVITY_TEX},
+      {"opcoesgauss",     required_argument, NULL,'g'},
       {"treino",          required_argument, NULL,'t'},
       {"teste",           required_argument, NULL,'d'},
       {"dados",           required_argument, NULL,'d'},
       {NULL,            0,                 NULL, 0  }
    };
-    std::vector<int> params;
-    while((c = getopt_long(argc, argv, "ht:d:", long_opt, NULL)) != -1){
+    std::vector<double> params;
+    while((c = getopt_long(argc, argv, "ht:d:g:", long_opt, NULL)) != -1){
         //TODO; check params size for each function, dont make paramparse on certain functions
         params=parseParams(optarg);
         switch(c){
             case -1:
             case 0:
-                break;
-            case ILFOURIER_SHA:
-                ans->addParam(ILFOURIER_SHA,params);
                 break;
             case ILFRACTDIM_SHA:
                 ans->addParam(ILFRACTDIM_SHA,params);
@@ -76,17 +65,18 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
             case ILFOURIER_TEX:
                 ans->addParam(ILFOURIER_TEX,params);
                 break;
-            case ILFRACTDIMKMEANS_TEX:
-                ans->addParam(ILFRACTDIMKMEANS_TEX,params);
+            case ILNETACTIVITY_TEX:
+                ans->addParam(ILNETACTIVITY_TEX,params);
                 break;
-            case ILSIMPLE_THR:
-                ans->setThresh(ILSIMPLE_THR,params);
-                break;
-            case ILKMEAN_THR:
-                ans->setThresh(ILKMEAN_THR,params);
+            case 'g':
+                if(params.size()!=2){
+                    fprintf(stderr,"Numero de argumentos invalido\n");
+                    exit(-1);
+                }
+                ans->setSobelOptions(params[0],params[1]);
                 break;
             case 'h':
-                printFromFile("HELP");
+                printf("%s",PROCT2HELP);
                 exit(0);
             case 'd':
                 folders->test=optarg;
@@ -104,10 +94,6 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
                 exit(-2);
         }
     }
-    if(ans->isShapeSet&&!ans->isThreshSet){
-        fprintf(stderr, "Erro, se uma função de forma for selecionada, uma de limiarização também precisa ser\n");
-        exit(127);
-    }
     if(folders->train==NULL){
         fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de treino com %s -t [pasta]\n",argv[0]);
         exit(127);
@@ -116,5 +102,5 @@ ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
         fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de teste com %s -d [pasta]\n",argv[0]);
         exit(127);
     }
-    return 0;
+    return ans;
 }

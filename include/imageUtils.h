@@ -1,3 +1,5 @@
+#ifndef IMAGEUTILS
+#define IMAGEUTILS
 #include "lodepng.h"
 #include<stdio.h>
 #include<stdlib.h>
@@ -13,3 +15,4 @@ Image newImageFrom(Image* i);
 Image newImage(uint h,uint w);
 int saveImage(Image *i,const char* filename);
 void scaleImageLIN(Image in,Image* out,float dx,float dy);
+#endif

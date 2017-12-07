@@ -18,18 +18,25 @@ void ImageLoader::ilError(uint code){
 			fprintf(stderr,"ImageLoader:Erro, impossível realizar mesma função duas vezes\n");
 			exit(127);
 		case 5:
-			fprintf(stderr,"ImageLoader:Erro, somente uma função de limiar possível\n");
+			fprintf(stderr,"ImageLoader:Erro, quantidade de argumentos invalida para procesamento da imagem\n");
 			exit(127);
 	}
 }
 ImageLoader::ImageLoader(){
 	isShapeSet=false;
-	isThreshSet=false;
 	dsIndex=0;
+	sobelSigma=0;
+}
+void ImageLoader::setSobelOptions(double sigma,uint size){
+	sobelSigma=sigma;
+	sobelSize=size;
 }
 void ImageLoader::init(const char* filename){
 	mainImg = loadImage(filename);
-	thresholdImg=mainImg;
+	sobel=new Sobel(mainImg.w,mainImg.h);
+	if(sobelSigma){
+		sobel->setBlurOptions(sobelSigma,sobelSize);
+	}
 	edgeImg=mainImg;
 	scaledImg=mainImg;
 
@@ -38,7 +45,6 @@ void ImageLoader::init(const char* filename){
 	imgDeltax=(1<<(int)(ceil(log2(mainImg.w))))/(double)mainImg.w;//2^ceil(log2(w))
     imgDeltay=(1<<(int)(ceil(log2(mainImg.h))))/(double)mainImg.h;//2^ceil(log2(h))
 
-	thresholdImg.data=(unsigned char*)malloc(s);
 	edgeImg.data=	  (unsigned char*)malloc(s);
 	scaledImg.data=	  (unsigned char*)malloc((int)ceil(s*imgDeltax*imgDeltay));
 
@@ -47,7 +53,6 @@ void ImageLoader::init(const char* filename){
 
 	if(
 		!mainImg.data||
-		!thresholdImg.data||
 		!edgeImg.data||
 		!scaledImg.data||
 		!compImgOut||
@@ -67,8 +72,23 @@ void ImageLoader::loadImageTo(const char* filename,Image *im){
 		im->data=NULL;
 	}
 }
-void ImageLoader::addParam(IcParamCode p,std::vector<int> args){
-	paramArgs.push_back(args);
+void ImageLoader::addParam(IcParamCode p,std::vector<double> args){
+	switch(p){
+		case ILFRACTDIM_SHA:
+			if(args.size()!=1)ilError(5);
+			fractdim_no=args[0];
+			break;
+		case ILHUMOMENTS_SHA:
+			if(args.size()!=0)ilError(5);
+			break;
+		case ILFOURIER_TEX:
+			if(args.size()!=1)ilError(5);
+			fourier_r=args[0];
+			break;
+		case ILNETACTIVITY_TEX:
+			//TODO
+			break;
+	}
 	size_t noParams=params.size();
 	if(p>IL_NO_ARGTYPES)ilError(3);
 	for(uint i=0;i<noParams;i++)if(params[i]==p)ilError(4);
@@ -76,12 +96,6 @@ void ImageLoader::addParam(IcParamCode p,std::vector<int> args){
 		isShapeSet=true;
 	}
 	params.push_back(p);
-}
-void ImageLoader::setThresh(ThreshCode p,std::vector<int> args){
-	if(isThreshSet)ilError(5);
-	isThreshSet=true;
-	tparam=p;
-	targs=args;
 }
 void ImageLoader::saveArff(const char* filename){
 	FILE* f=fopen(filename,"w");
@@ -117,34 +131,23 @@ void ImageLoader::addImage(const char* filename){
 		printf("Pulando arquivo:%s\n",filename );
 		return;
 	}
-	if(isThreshSet){
-		switch(tparam){
-			case ILSIMPLE_THR:
-				simple_threshold(&im);
-				break;
-			case ILKMEAN_THR:
-				kmean_threshold(&im);
-				break;
-		}
-		binEdgeDetect(&tim);
+	if(isShapeSet){
+		sobel->run(im,&edgeImg);
 	}
 
 	for(uint i=0;i<noParams;i++){
 		switch(params[i]){
-			case ILFOURIER_SHA:
-				fourier_shape(&tim);
-				break;
 			case ILFRACTDIM_SHA:
-				fractdim_shape(&tim);
+				fractdim_shape(&edgeImg);
 				break;
 			case ILHUMOMENTS_SHA:
-				humoments_shape(&tim);
+				humoments_shape(&edgeImg);
 				break;
 			case ILFOURIER_TEX:
 				fourier_texture(&im);
 				break;
-			case ILFRACTDIMKMEANS_TEX:
-				fractdimkmeans_texture(&im);
+			case ILNETACTIVITY_TEX:
+				netactivity_texture(&im);
 				break;
 		}
 	}

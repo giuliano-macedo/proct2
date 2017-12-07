@@ -1,3 +1,6 @@
+#ifndef PROCT2
+
+#define PROCT2
 #include "ImageLoader.hpp"
 #include <getopt.h>
 #include <dirent.h>
@@ -10,4 +13,5 @@ struct DatasetFolders{
 typedef struct DatasetFolders DSFolders;
 
 ImageLoader* processArgs(int argc,char** argv,DSFolders* folders);
-void printFromFile(char* filename);
+//...[TODO]
+#endif
