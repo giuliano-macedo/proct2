@@ -38,3 +38,52 @@ uint px=(((int)i-(int)hkw)<0)?i+hkw:(i-hkw);
     }
     py++;
   }
+void ImageLoader::reset(){
+  // ds.clear();
+  // dsIndex=0;
+  ds.clear();
+  uint sz=imgs.size();
+  for(uint i=0;i<sz;i++){
+    free(imgs[i]);
+  }
+  imgs.clear();
+}
+void ImageLoader::carregaImage(const char* filename){
+  unsigned char* ans;
+  uint w,h;
+  lodepng_decode_file(&ans, &w, &h, filename,LCT_GREY,8);
+  imgs.push_back(ans);
+}
+void ImageLoader::run(){
+  uint imgi;
+  uint sz=imgs.size();
+  size_t noParams=params.size();
+  for(imgi=0;imgi<sz;imgi++){
+    ds.push_back({std::vector<double>(),0});//TODO set Label
+    currentData=&(ds[imgi].data);
+    mainImg.data=imgs[imgi];
+
+    if(isShapeSet){
+      sobel->run(mainImg,&edgeImg);
+    }
+    for(uint i=0;i<noParams;i++){
+      switch(params[i]){
+        case ILFRACTDIM_SHA:
+          fractdim_shape(&edgeImg);
+          break;
+        case ILHUMOMENTS_SHA:
+          humoments_shape(&edgeImg);
+          break;
+        case ILFOURIER_TEX:
+          fourier_texture(&mainImg);
+          break;
+        case ILNETACTIVITY_TEX:
+          netactivity_texture(&mainImg);
+          break;
+      }
+    }
+    printf("\r%.2lf%%",((double)(imgi*100)/sz));
+    fflush(stdout);
+  }
+  putchar('\n');
+}

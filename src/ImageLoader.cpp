@@ -28,6 +28,7 @@ ImageLoader::ImageLoader(){
 	isShapeSet=false;
 	dsIndex=0;
 	sobelSigma=0;
+	fourier_r=0;
 }
 void ImageLoader::setSobelOptions(double sigma,uint size){
 	sobelSigma=sigma;
@@ -37,7 +38,7 @@ void ImageLoader::reset(){
 	ds.clear();
 	dsIndex=0;
 }
-void ImageLoader::init(const char* filename){
+void ImageLoader::init(const char* filename,uint labeli){
 	mainImg = loadImage(filename);
 	if(!mainImg.data)ilError(2);
 	sobel=new Sobel(mainImg.w,mainImg.h);
@@ -68,7 +69,13 @@ void ImageLoader::init(const char* filename){
 		!compImgIn){
 		ilError(0);
 	}
-	addImage(filename);
+	if(fourier_r){//if fourier_texture
+		uint hw,hh;
+		hw=scaledImg.w/2;
+		hh=scaledImg.h/2;
+		fourier_maxDistanceToCenter=ceil(sqrt((hw*hw)+(hh*hh))/fourier_r);
+	}
+	processImage(filename,labeli);
 
 }
 void ImageLoader::loadImageTo(const char* filename,Image *im){
@@ -95,6 +102,7 @@ void ImageLoader::addParam(IcParamCode p,std::vector<double> args){
 		case ILFOURIER_TEX:
 			if(args.size()!=1)ilError(5);
 			fourier_r=args[0];
+			if(fourier_r<=0)ilError(3);
 			break;
 		case ILNETACTIVITY_TEX:
 			//TODO
@@ -108,33 +116,52 @@ void ImageLoader::addParam(IcParamCode p,std::vector<double> args){
 	}
 	params.push_back(p);
 }
+void ImageLoader::setLabels(std::vector<std::string> l){
+	labels=l;
+}
 void ImageLoader::saveArff(const char* filename){
+	uint i;
 	FILE* f=fopen(filename,"w");
 	if(!f){
 		fprintf(stderr,"Falha ao salvar arquivo arff\n");
 		exit(-1);
 	}
-	uint s=ds.size();
+	uint s;
 	uint ss;
 	DSItem ad;
+	fprintf(f,"@RELATION \"Trabalho 2 TPI\"\n");
+	s=ds[0].data.size();
+	for(i=0;i<s;i++){
+		fprintf(f, "@ATTRIBUTE value%u NUMERIC\n",i );
+	}
+	fprintf(f,"@ATTRIBUTE class {");
+	s=labels.size();
+	for(i=0;i<s;i++){
+		fprintf(f, "%s",labels[i].c_str());
+		if(i!=s-1){
+			fprintf(f, ",");
+		}
+	}
+	fprintf(f, "}\n");
 
-	//TODO:header
 	fprintf(f,"@DATA\n");
-	for(uint i=0;i<s;i++){
+	s=ds.size();
+	for(i=0;i<s;i++){
 		ad=ds[i];
 		ss=ad.data.size();
 		for(uint j=0;j<ss;j++){
 			fprintf(f,"%e,",ad.data[j]);
+			// fprintf(f,"%.25lf,",ad.data[j]);
 		}
-		fprintf(f,"%u\n",ad.label);
+		fprintf(f,"%s\n",labels[ad.label].c_str());
 	}
 }
 std::vector<DSItem> ImageLoader::getDS(){
 	return ds;
 }
-void ImageLoader::addImage(const char* filename){
+void ImageLoader::processImage(const char* filename,uint labeli){
 	size_t noParams=params.size();
-	ds.push_back({std::vector<double>(),0});//TODO set Label
+	ds.push_back({std::vector<double>(),labeli});
 	currentData=&(ds[dsIndex].data);
 	loadImageTo(filename,&mainImg);
 	if(mainImg.data==NULL){

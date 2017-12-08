@@ -1,4 +1,5 @@
 #include "proct2.hpp"
+std::vector<std::string> LABELS;
 void addSlash(char* str){
 	size_t sz = strlen(str);
 	if(str[sz-1]!='/'){
@@ -20,6 +21,28 @@ size_t countFilesInFolder(char *folder){
 	closedir(dirp);
 	return ans;
 }
+uint processLabel(char* filename){
+	std::string* ans=new std::string();
+	uint i=0;
+	uint sz=LABELS.size();
+	char c;
+	while((c=filename[i++])){
+		if(c=='_')break;
+		ans->push_back(c);
+	}
+	ans->push_back(0);
+	for(i=0;i<sz;i++){
+		if(*ans==LABELS[i]){
+			delete ans;
+			return i;
+
+		}
+	}
+	LABELS.push_back(*ans);
+	return sz;
+	
+
+}
 int main(int argc,char** argv){
 	uint i;
 	DSFolders dsf={NULL,NULL};
@@ -36,14 +59,16 @@ int main(int argc,char** argv){
 	}
 	size_t noTrain = countFilesInFolder(dsf.train);
 	size_t noTest  = countFilesInFolder(dsf.test );
-	printf("Número de arquivos treino:%lu\n",noTrain);
-	printf("Número de arquivos teste:%lu\n",noTest);
+	printf("No. de arquivos treino:%lu\n",noTrain);
+	printf("No. de arquivos teste: %lu\n",noTest);
 	il->ds.reserve(noTrain);
 	addSlash(dsf.train);
 	addSlash(dsf.test);
 
 
 	char* temp=(char*)malloc(256);
+	uint actLabel;
+
 	strcpy(temp,dsf.train);
 	readdir(dir1);//.
 	readdir(dir1);//..
@@ -51,7 +76,12 @@ int main(int argc,char** argv){
 	size_t sz=strlen(temp);
 	temp=strcat(temp,ent->d_name);
 
-	il->init(temp);
+
+	actLabel=processLabel(ent->d_name);
+	il->init(temp,actLabel);
+	// il->setLabels(LABELS);
+	// il->saveArff("foo.arff");
+	// return 0;
 
 	printf("Gerando treino.arff\n");
 	i=1;
@@ -59,13 +89,14 @@ int main(int argc,char** argv){
 		i++;
 		temp[sz]=0;
 		temp=strcat(temp,ent->d_name);
-		il->addImage(temp);
+		actLabel=processLabel(ent->d_name);
+		il->processImage(temp,actLabel);
 		printf("\r%.2lf%%",((double)(i*100)/noTrain));
 		fflush(stdout);
 	}
 	putchar('\n');
 	closedir(dir1);
-
+	il->setLabels(LABELS);
 	il->saveArff("treino.arff");
 	il->reset();
 	il->ds.reserve(noTest);
@@ -80,11 +111,11 @@ int main(int argc,char** argv){
 		i++;
 		temp[sz]=0;
 		temp=strcat(temp,ent->d_name);
-		il->addImage(temp);
+		actLabel=processLabel(ent->d_name);
+		il->processImage(temp,actLabel);
 		printf("\r%.2lf%%",((double)(i*100)/noTest));
 		fflush(stdout);
 	}
-
 	il->saveArff("teste.arff");
 	closedir(dir2);
 	putchar('\n');

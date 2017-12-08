@@ -8,6 +8,7 @@
 #include "Sobel.hpp"
 #include <math.h>
 #include <vector>
+#include <string>
 enum IcParamCode{
 	ILFRACTDIM_SHA=1,
 	ILHUMOMENTS_SHA,
@@ -29,16 +30,16 @@ typedef unsigned int uint;
 class ImageLoader {
 	public:
 		ImageLoader();
-		void addImage(const char* filename);
+		void processImage(const char* filename,uint labeli);
 		void addParam(IcParamCode p,std::vector<double> args);
-		void init(const char* filename);
+		void init(const char* filename,uint labeli);
 		void saveArff(const char* filename);
 		void setSobelOptions(double sigma,uint size);
+		void setLabels(std::vector<std::string> l);
 		void reset();
 		std::vector<DSItem> getDS();
 		bool isShapeSet;
 		std::vector<DSItem> ds;
-
 
 	private:
 		double sobelSigma;
@@ -54,6 +55,8 @@ class ImageLoader {
 		Comp* compImgOut;
 
 		std::vector<IcParamCode> params;
+
+		std::vector<std::string> labels;
 
 		// Image newImageFrom(Image* i);
 		void loadImageTo(const char* filename,Image *im);
@@ -72,6 +75,8 @@ class ImageLoader {
 
 		uint fractdim_no;
 		double fourier_r;
+
+		uint fourier_maxDistanceToCenter;
 
 };
 #endif

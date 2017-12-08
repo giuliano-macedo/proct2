@@ -8,7 +8,7 @@ Sobel::Sobel(uint iw,uint ih){
 	blurd =(unsigned char*)malloc(h*w);
 	img2norm = (double*)malloc(sizeof(double)*w*h);
 	blurImg={blurd,w,h};
-	blurConv = new Convolutioner(genGaussKernel(3,2));
+	blurConv = new Convolutioner(genGaussKernel(1.5,3));
 	
 	convx = new Convolutioner((Kernel){sx,3,3});
 	convy = new Convolutioner((Kernel){sy,3,3});

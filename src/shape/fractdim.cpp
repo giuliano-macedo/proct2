@@ -6,21 +6,29 @@ uint boxcount(Image *im,uint d){//probably wrong
 	uint ow=im->w;
 	uint w=im->w/d;
 	uint h=im->h/d;
-	for(uint i=0;i<d;i++){
-		for(uint j=0;j<d;j++){
-			for(uint y=0;y<h;y++){
-			    for(uint x=0;x<w;x++){
-		            p=data[((y+(i*w))*ow)+(x+(j*w))];//not sure
-		            if(p)ans++;
+	uint i,j,y,x;
+	for(i=0;i<d;i++){
+		for(j=0;j<d;j++){
+			for(y=0;y<h;y++){
+			    for(x=0;x<w;x++){
+		            p=data[((y+(i*w))*ow)+(x+(j*w))];
+		            if(p){
+		            	ans++;
+		            	y=h;
+		            	x=w;
+		            }
 			    }
 			}
+			
 		}
 	}
 	return ans;
 }
 void ImageLoader::fractdim_shape(Image* im){
-	for(uint i=1;i<fractdim_no;i++){//TODO maybe d will devide too much w or h
-		// currentData.push_back(log(boxcount(im,i))/log(d));
-		currentData->push_back(log(boxcount(im,i)));
+	uint m=(im->w>im->h)?im->h:im->w;
+	if(fractdim_no>m)ilError(3);
+	
+	for(uint i=m;i>=(m-fractdim_no);i--){
+		currentData->push_back((boxcount(im,i)));
 	}
 }
