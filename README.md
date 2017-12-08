@@ -6,6 +6,6 @@
     <li>g++</li>
     <li>make</li>
 </ul>
-<p>após de executar <code>git clone https://gitlab.com/llpinokio.com/proct2.git</code><br> ou download direto, basta navegar até a pasta e executar<br>
+<p>após executar <code>git clone https://gitlab.com/llpinokio.com/proct2.git</code><br> ou download direto, basta navegar até a pasta e executar<br>
 <code>make</code> e seu binario estará na mesma pasta com o nome <code>proct2</code>
 
