@@ -1,126 +1,113 @@
 #include "proct2.hpp"
-std::vector<std::string> LABELS;
-void addSlash(char* str){
-	size_t sz = strlen(str);
-	if(str[sz-1]!='/'){
-		str[sz]='/';
-		str[sz+1]=0;
-	}
+const char* PROCT2HELP = "\
+[USO] ./proct2 -t [caminho para imagens de treino] -d [caminho para imagens de teste] [opções]\n\
+opções disponíveis\n\
+--help --ajuda -h\tExibe esta mensagem\n\
+--fractalForma <d>\tExecuta algoritmo de dimensão fractal do menor valor possivel até d para forma nas imagens\n\
+--momentoshu\tExecuta algoritmo dos momentos de hu nas imagens\n\
+--fourierTextura <r>\tExecuta algortimo de discretores de fourier para forma na imagem com raio r\n\
+--opcoesgauss -g\t<t>,<s> atribue valores do filtro de suavização gaussiana com tamanho t e simga s\n\
+--treino -t\tatribue a pasta de imagens de treion\n\
+--teste -d\tatribue a pasta de imagens de teste\n\
+";
+std::vector<double> parseParams(char* in){
+    if(!in)return std::vector<double>();
+    std::vector<double> ans;
+    if(in==NULL){
+        ans.push_back(0);
+        return ans;
+    }
+    std::vector<char> str;
+    char c;
+    uint i=0;
+    while((c=in[i++])){
+        if(c==','){
+                str.push_back(0);
+                ans.push_back(atof(&str[0]));
+                str.clear();
+        }
+        else{
+            if(isdigit(c)||c=='-'||c=='.'){
+                str.push_back(c);
+            }
+            else{
+                return std::vector<double>();
+            }
+        }
+    }
+    str.push_back(0);
+    ans.push_back(atof(&str[0]));
+    return ans;
 }
-size_t countFilesInFolder(char *folder){
-	size_t ans = 0;
-	DIR * dirp;
-	struct dirent * entry;
-
-	dirp = opendir(folder);
-	while((entry = readdir(dirp)) != NULL) {
-		if(entry->d_type == DT_REG){
-		     ans++;
-		 }
-	}
-	closedir(dirp);
-	return ans;
-}
-uint processLabel(char* filename){
-	std::string* ans=new std::string();
-	uint i=0;
-	uint sz=LABELS.size();
-	char c;
-	while((c=filename[i++])){
-		if(c=='_')break;
-		ans->push_back(c);
-	}
-	ans->push_back(0);
-	for(i=0;i<sz;i++){
-		if(*ans==LABELS[i]){
-			delete ans;
-			return i;
-
-		}
-	}
-	LABELS.push_back(*ans);
-	return sz;
-	
-
-}
-int main(int argc,char** argv){
-	uint i;
-	DSFolders dsf={NULL,NULL};
-	ImageLoader* il = processArgs(argc,argv,&dsf);
-	DIR *dir1,*dir2;
-	struct dirent *ent;
-	if((dir1 = opendir (dsf.train)) == NULL){
-		fprintf(stderr, "Erro pasta de imagens de treino não encontrada\n" );
-		return 127;
-	}
-	if((dir2 = opendir (dsf.test)) == NULL){
-		fprintf(stderr, "Erro pasta de imagens de teste não encontrada\n" );
-		return 127;
-	}
-	size_t noTrain = countFilesInFolder(dsf.train);
-	size_t noTest  = countFilesInFolder(dsf.test );
-	printf("No. de arquivos treino:%lu\n",noTrain);
-	printf("No. de arquivos teste: %lu\n",noTest);
-	il->ds.reserve(noTrain);
-	addSlash(dsf.train);
-	addSlash(dsf.test);
-
-
-	char* temp=(char*)malloc(256);
-	uint actLabel;
-
-	strcpy(temp,dsf.train);
-	readdir(dir1);//.
-	readdir(dir1);//..
-	ent=readdir(dir1);
-	size_t sz=strlen(temp);
-	temp=strcat(temp,ent->d_name);
-
-
-	actLabel=processLabel(ent->d_name);
-	il->init(temp,actLabel);
-	// il->setLabels(LABELS);
-	// il->saveArff("foo.arff");
-	// return 0;
-
-	printf("Gerando treino.arff\n");
-	i=1;
-	while((ent=readdir(dir1))!=NULL){
-		i++;
-		temp[sz]=0;
-		temp=strcat(temp,ent->d_name);
-		actLabel=processLabel(ent->d_name);
-		il->processImage(temp,actLabel);
-		printf("\r%.2lf%%",((double)(i*100)/noTrain));
-		fflush(stdout);
-	}
-	putchar('\n');
-	closedir(dir1);
-	il->setLabels(LABELS);
-	il->saveArff("treino.arff");
-	il->reset();
-	il->ds.reserve(noTest);
-	strcpy(temp,dsf.test);
-
-	readdir(dir2);//.
-	readdir(dir2);//..
-	sz=strlen(temp);
-	i=0;
-	printf("Gerando teste.arff\n");
-	while((ent=readdir(dir2))!=NULL){
-		i++;
-		temp[sz]=0;
-		temp=strcat(temp,ent->d_name);
-		actLabel=processLabel(ent->d_name);
-		il->processImage(temp,actLabel);
-		printf("\r%.2lf%%",((double)(i*100)/noTest));
-		fflush(stdout);
-	}
-	il->saveArff("teste.arff");
-	closedir(dir2);
-	putchar('\n');
-
-
-	//classify, calculate percentage,end
-	return 0;
+ImageLoader* processArgs(int argc, char ** argv,DSFolders* folders){
+   ImageLoader* ans=new ImageLoader();
+   int c;
+   struct option   long_opt[] ={
+      {"help",            no_argument,       NULL, 'h'},
+      {"ajuda",           no_argument,       NULL, 'h'},
+      {"fractalForma",    required_argument, NULL,ILFRACTDIM_SHA},
+      {"momentoshuForma",no_argument      , NULL,ILHUMOMENTS_SHA},
+      {"fourierTextura",  required_argument, NULL,ILFOURIER_TEX},
+      {"atividaderedeTextura",  required_argument, NULL,ILNETACTIVITY_TEX},
+      {"opcoesgauss",     required_argument, NULL,'g'},
+      {"treino",          required_argument, NULL,'t'},
+      {"teste",           required_argument, NULL,'d'},
+      {"dados",           required_argument, NULL,'d'},
+      {NULL,            0,                 NULL, 0  }
+   };
+    std::vector<double> params;
+    while((c = getopt_long(argc, argv, "ht:d:g:", long_opt, NULL)) != -1){
+        //TODO; check params size for each function, dont make paramparse on certain functions
+        params=parseParams(optarg);
+        switch(c){
+            case -1:
+            case 0:
+                break;
+            case ILFRACTDIM_SHA:
+                ans->addParam(ILFRACTDIM_SHA,params);
+                break;
+            case ILHUMOMENTS_SHA:
+                ans->addParam(ILHUMOMENTS_SHA,params);
+                break;
+            case ILFOURIER_TEX:
+                ans->addParam(ILFOURIER_TEX,params);
+                break;
+            case ILNETACTIVITY_TEX:
+                ans->addParam(ILNETACTIVITY_TEX,params);
+                break;
+            case 'g':
+                if(params.size()!=2){
+                    fprintf(stderr,"Numero de argumentos invalido\n");
+                    exit(-1);
+                }
+                ans->setSobelOptions(params[0],params[1]);
+                break;
+            case 'h':
+                printf("%s",PROCT2HELP);
+                exit(0);
+            case 'd':
+                folders->test=optarg;
+                break;
+            case 't':
+                folders->train=optarg;
+                break;
+            case ':':
+            case '?':
+                fprintf(stderr, "Use `%s --help' para mais informações.\n", argv[0]);
+                exit(-2);
+            default:
+                fprintf(stderr, "%s: opção invalida -- %c\n", argv[0], c);
+                fprintf(stderr, "Use '%s --help' ou '%s --ajuda' para mais informações.\n", argv[0],argv[0]);
+                exit(-2);
+        }
+    }
+    if(folders->train==NULL){
+        fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de treino com %s -t [pasta]\n",argv[0]);
+        exit(127);
+    }
+    if(folders->test==NULL){
+        fprintf(stderr,"Erro, porfavor indique uma pasta com imagens de teste com %s -d [pasta]\n",argv[0]);
+        exit(127);
+    }
+    return ans;
 }
