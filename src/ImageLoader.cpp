@@ -10,6 +10,8 @@ void ImageLoader::ilError(uint code){
 			exit(127);
 			break;
 		case 2:
+			fprintf(stderr,"Erro ao processar primeira imagem\n");
+			exit(127);
 			break;
 		case 3:
 			fprintf(stderr,"ImageLoader:Erro, argumento inválido\n");
@@ -31,8 +33,13 @@ void ImageLoader::setSobelOptions(double sigma,uint size){
 	sobelSigma=sigma;
 	sobelSize=size;
 }
+void ImageLoader::reset(){
+	ds.clear();
+	dsIndex=0;
+}
 void ImageLoader::init(const char* filename){
 	mainImg = loadImage(filename);
+	if(!mainImg.data)ilError(2);
 	sobel=new Sobel(mainImg.w,mainImg.h);
 	if(sobelSigma){
 		sobel->setBlurOptions(sobelSigma,sobelSize);
@@ -45,11 +52,13 @@ void ImageLoader::init(const char* filename){
 	imgDeltax=(1<<(int)(ceil(log2(mainImg.w))))/(double)mainImg.w;//2^ceil(log2(w))
     imgDeltay=(1<<(int)(ceil(log2(mainImg.h))))/(double)mainImg.h;//2^ceil(log2(h))
 
+    scaledImg.w=(int)ceil(imgDeltax*mainImg.w);
+    scaledImg.h=(int)ceil(imgDeltay*mainImg.h);
 	edgeImg.data=	  (unsigned char*)malloc(s);
 	scaledImg.data=	  (unsigned char*)malloc((int)ceil(s*imgDeltax*imgDeltay));
 
-	compImgIn=(Comp*)malloc(sizeof(Comp)*s);
-	compImgOut=(Comp*)malloc(sizeof(Comp)*s);
+	compImgIn=(Comp*)malloc(sizeof(Comp)*(int)ceil(s*imgDeltax*imgDeltay));
+	compImgOut=(Comp*)malloc(sizeof(Comp)*(int)ceil(s*imgDeltax*imgDeltay));
 
 	if(
 		!mainImg.data||
@@ -66,17 +75,19 @@ void ImageLoader::loadImageTo(const char* filename,Image *im){
 	free(im->data);
 	uint w,h;
 	uint error = lodepng_decode_file(&im->data, &w, &h, filename,LCT_GREY,8);
-	if(w!=im->w||h!=im->h)ilError(1);
 	if(error){
 		fprintf(stderr,"Erro ao abrir arquivo %s : %s\n",filename,lodepng_error_text(error));
 		im->data=NULL;
+		return;
 	}
+	if(w!=im->w||h!=im->h)ilError(1);
+
 }
 void ImageLoader::addParam(IcParamCode p,std::vector<double> args){
 	switch(p){
 		case ILFRACTDIM_SHA:
 			if(args.size()!=1)ilError(5);
-			fractdim_no=args[0];
+			fractdim_no=args[0]+1;
 			break;
 		case ILHUMOMENTS_SHA:
 			if(args.size()!=0)ilError(5);
@@ -106,14 +117,14 @@ void ImageLoader::saveArff(const char* filename){
 	uint s=ds.size();
 	uint ss;
 	DSItem ad;
-	
+
 	//TODO:header
 	fprintf(f,"@DATA\n");
 	for(uint i=0;i<s;i++){
 		ad=ds[i];
 		ss=ad.data.size();
 		for(uint j=0;j<ss;j++){
-			fprintf(f,"%lf,",ad.data[i]);
+			fprintf(f,"%e,",ad.data[j]);
 		}
 		fprintf(f,"%u\n",ad.label);
 	}
@@ -123,16 +134,14 @@ std::vector<DSItem> ImageLoader::getDS(){
 }
 void ImageLoader::addImage(const char* filename){
 	size_t noParams=params.size();
-	ds.push_back({std::vector<double>(),0});//Not sure
-	currentData=ds[dsIndex].data;
-	Image im,tim;
-	loadImageTo(filename,&im);
-	if(im.data==NULL){
-		printf("Pulando arquivo:%s\n",filename );
+	ds.push_back({std::vector<double>(),0});//TODO set Label
+	currentData=&(ds[dsIndex].data);
+	loadImageTo(filename,&mainImg);
+	if(mainImg.data==NULL){
 		return;
 	}
 	if(isShapeSet){
-		sobel->run(im,&edgeImg);
+		sobel->run(mainImg,&edgeImg);
 	}
 
 	for(uint i=0;i<noParams;i++){
@@ -144,12 +153,16 @@ void ImageLoader::addImage(const char* filename){
 				humoments_shape(&edgeImg);
 				break;
 			case ILFOURIER_TEX:
-				fourier_texture(&im);
+				fourier_texture(&mainImg);
 				break;
 			case ILNETACTIVITY_TEX:
-				netactivity_texture(&im);
+				netactivity_texture(&mainImg);
 				break;
 		}
 	}
+	// printf("currentData:\n");
+	// for(int i=0;i<currentData->size();i++){
+	// 	printf("%-10.20lf\n",currentData[0][i]);
+	//
 	dsIndex++;
 }

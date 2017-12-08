@@ -1,4 +1,3 @@
-//Deixando sem uso, kmeans não é muito bom com imagens em tons de cinza
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>

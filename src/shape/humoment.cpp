@@ -47,25 +47,25 @@ void ImageLoader::humoments_shape(Image* i){
 	double temp1,temp2;
 	temp1=u20+u02;
 
-	currentData.push_back(temp1);//phi1
+	currentData->push_back(temp1);//phi1
 
-	currentData.push_back((temp1*temp1)+(4*u11*u11));//phi2
+	currentData->push_back((temp1*temp1)+(4*u11*u11));//phi2
 
 	temp1=u30-(3*u12);
 	temp2=(3*u21)-u03;
-	currentData.push_back((temp1*temp1)+(temp2*temp2));//phi3
+	currentData->push_back((temp1*temp1)+(temp2*temp2));//phi3
 
 	temp1=u30+u12;
 	temp2=u21+u03;
 
 	temp1*=temp1;
 	temp2*=temp2;
-	currentData.push_back(temp1+temp2);//phi4
+	currentData->push_back(temp1+temp2);//phi4
 
-	currentData.push_back((u30-(3*u12))*(u30+u12)*(temp1-(3*temp2))+((3*u21-u03)*(u21+u03)*((3*temp1)-temp2)));//phi5
+	currentData->push_back((u30-(3*u12))*(u30+u12)*(temp1-(3*temp2))+((3*u21-u03)*(u21+u03)*((3*temp1)-temp2)));//phi5
 
-	currentData.push_back( ((u20-u02)*(temp1-temp2)) +(4*u11*(u30+u12)*(u21+u03))  );//phi6
+	currentData->push_back( ((u20-u02)*(temp1-temp2)) +(4*u11*(u30+u12)*(u21+u03))  );//phi6
 
-	currentData.push_back( (((3*u21)-u03)*(u30+u12)*(temp1-3*temp2)) - ((u30 - (3*u12))*(u21+u03)*((3*temp1) - temp2)));//phi7
+	currentData->push_back( (((3*u21)-u03)*(u30+u12)*(temp1-3*temp2)) - ((u30 - (3*u12))*(u21+u03)*((3*temp1) - temp2)));//phi7
 
 }

@@ -22,8 +22,8 @@ void Convolutioner::setKernel(Kernel k){
 double Convolutioner::convoluteAt(uint i,uint j){
 	double ans=0;
    	uint x,y;
-		int px,py;
-		for(y=0;y<kh;y++){
+	int px,py;
+	for(y=0;y<kh;y++){
 		py=j-hkh+y;
 		if(py<0){
 			py+=hkh;

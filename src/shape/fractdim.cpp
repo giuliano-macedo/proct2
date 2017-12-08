@@ -1,5 +1,5 @@
 #include "ImageLoader.hpp"
-uint boxcount(Image *im,uint d){
+uint boxcount(Image *im,uint d){//probably wrong
 	uint ans=0;
 	unsigned char *data=im->data;
 	uint p;
@@ -19,8 +19,8 @@ uint boxcount(Image *im,uint d){
 	return ans;
 }
 void ImageLoader::fractdim_shape(Image* im){
-	for(uint i=1;i<im->w;i++){//TODO maybe d will devide too much w or h
+	for(uint i=1;i<fractdim_no;i++){//TODO maybe d will devide too much w or h
 		// currentData.push_back(log(boxcount(im,i))/log(d));
-		currentData.push_back(log(boxcount(im,i)));
+		currentData->push_back(log(boxcount(im,i)));
 	}
 }

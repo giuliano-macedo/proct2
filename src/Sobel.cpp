@@ -13,6 +13,9 @@ Sobel::Sobel(uint iw,uint ih){
 	convx = new Convolutioner((Kernel){sx,3,3});
 	convy = new Convolutioner((Kernel){sy,3,3});
 
+	convx->setImage(blurImg);
+	convy->setImage(blurImg);
+
 }
 void Sobel::setBlurOptions(double sigma,uint size){
 	blurConv->setKernel(genGaussKernel(sigma,size));
@@ -42,7 +45,7 @@ void Sobel::run(Image in,Image* out){
        }
    }
    //Normalize it
-   unsigned char* d=in.data;
+   unsigned char* d=out->data;
    m/=255.0;
    for(y=0;y<h;y++){
        for(x=0;x<w;x++){

@@ -35,7 +35,7 @@ Image newImage(uint h,uint w){
     if(!ans.data)iuEror(0);
 	return ans;
 }
-int saveImage(Image *i,char* filename){
+int saveImage(Image *i,const char* filename){
 	uint error=lodepng_encode_file(filename,i->data, i->w, i->h,LCT_GREY, 8);
 	if(error){
 		fprintf(stderr,"Erro ao salvar arquivo %s:%u\n", lodepng_error_text(error),error);

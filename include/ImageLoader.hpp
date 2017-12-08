@@ -34,19 +34,18 @@ class ImageLoader {
 		void init(const char* filename);
 		void saveArff(const char* filename);
 		void setSobelOptions(double sigma,uint size);
+		void reset();
 		std::vector<DSItem> getDS();
 		bool isShapeSet;
+		std::vector<DSItem> ds;
 
-		uint fractdim_no;
-		double fourier_r;
-		std::vector<IcParamCode> params;
-		
+
 	private:
 		double sobelSigma;
 		uint sobelSize;
 		Sobel* sobel;
 
-		
+
 		Image mainImg;
 		Image edgeImg;
 		Image scaledImg;
@@ -54,16 +53,16 @@ class ImageLoader {
 		Comp* compImgIn;
 		Comp* compImgOut;
 
+		std::vector<IcParamCode> params;
 
 		// Image newImageFrom(Image* i);
 		void loadImageTo(const char* filename,Image *im);
 		void ilError(uint code);
-		std::vector<DSItem> ds;
-		std::vector<double> currentData;
+		std::vector<double>* currentData;
 		uint dsIndex;
 
-		uint imgDeltax;
-		uint imgDeltay;
+		double imgDeltax;
+		double imgDeltay;
 
 		void fractdim_shape(Image* i);//TODO test
 		void humoments_shape(Image* image);//TODO test
@@ -71,6 +70,8 @@ class ImageLoader {
 		void fourier_texture(Image* i);
 		void netactivity_texture(Image* i);//TODO
 
+		uint fractdim_no;
+		double fourier_r;
 
 };
 #endif

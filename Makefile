@@ -1,5 +1,5 @@
 CXX      := -c++
-CXXFLAGS := -Wall
+CXXFLAGS := -Wall -Wno-switch
 LDFLAGS  := -L/usr/lib -lstdc++ -lm
 BUILD    := build
 INCLUDE  := -Iinclude/

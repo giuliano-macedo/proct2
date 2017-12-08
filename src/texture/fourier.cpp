@@ -10,7 +10,7 @@ void imageToComp(Image im,Comp* ci){
         ci[i]=c;
     }
 }
-std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){ 
+std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){
     //soma camadas do circulo da imagem de magnitude
     //como essa implementação do fft faz uma imagem na qual
     //as 4 partições estão rotacionadas 180 graus, portanto o calculo se baseia na
@@ -28,7 +28,7 @@ std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){
     double temp1,temp2;
     temp1=w/r;
     for(uint i=0;i<temp1;i++){
-        ans.push_back(0);
+        ans.push_back(0);//TODO:Too much zeroes :0
     }
     for(y=0;y<h;y++){
         for(x=0;x<w;x++){
@@ -52,7 +52,7 @@ std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){
             }
             dis=hypot(temp1,temp2);
             ans[(int)(dis/r)]+=m;
-            
+
         }
     }
     ans.push_back(s);
@@ -60,11 +60,9 @@ std::vector<double> sumComplexMagsLayers(Comp* ci,uint w,uint h,uint r){
 }
 
 void ImageLoader::fourier_texture(Image* oi){
-
-	uint r=0;//TODO:r as param
     scaleImageLIN(*oi,&scaledImg,imgDeltax,imgDeltay);
     imageToComp(scaledImg,compImgIn);
     fft(compImgIn,compImgOut,1,scaledImg.w*scaledImg.h,0);
-    std::vector<double> sum = sumComplexMagsLayers(compImgOut,scaledImg.w,scaledImg.h,r);
-    currentData.insert( currentData.end(), sum.begin(), sum.end() );//concat vectors
+    std::vector<double> sum = sumComplexMagsLayers(compImgOut,scaledImg.w,scaledImg.h,fourier_r);
+    currentData->insert( currentData->end(), sum.begin(), sum.end() );//concat vectors
 }
